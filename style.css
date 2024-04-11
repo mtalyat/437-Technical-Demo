@@ -1,0 +1,13 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Prevents scrollbars from appearing */
+  }
+  
+  canvas {
+    display: block; /* Removes the margin that exists on the canvas */
+    background: #f0f0f0; /* Light grey background */
+    width: 100vw; /* 100% of the viewport width */
+    height: 100vh; /* 100% of the viewport height */
+  }
+  

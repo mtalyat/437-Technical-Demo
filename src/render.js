@@ -118,8 +118,8 @@ function render() {
     const projectionMatrix = mat4.create();
     mat4.perspective(projectionMatrix, fov, aspect, near, far);
     
-    const cameraPos = vec3.fromValues(-10.0, 10.0, -10.0);
-    const targetPos = vec3.fromValues(0.0, 0.0, 0.0);
+    const cameraPos = vec3.fromValues(0.0, WORLD_WIDTH * 0.5, -20.0);
+    const targetPos = vec3.fromValues(0.0, WORLD_WIDTH * 0.5, 0.0);
     const up = vec3.fromValues(0.0, 1.0, 0.0);
     const viewMatrix = mat4.create();
     mat4.lookAt(viewMatrix, cameraPos, targetPos, up);

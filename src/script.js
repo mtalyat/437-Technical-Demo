@@ -5,6 +5,26 @@ const WORLD_POINT_SCALE = WORLD_WIDTH / POINT_COUNT_AXIS;
 const WORLD_HEIGHT = 2.0;
 const FREQUENCY = 2.0 / POINT_COUNT_AXIS; // divide by count to keep consistent regardless of count value
 
+// use a custom class to randomly generate numbers using a seed
+// Math.random() does not allow for a seed
+class RandomNumberGenerator {
+    constructor(seed) {
+        this.seed = seed;
+    }
+
+    random() {
+        const a = 1664525;
+        const c = 1013904223;
+        const m = 4294967296; // 2^32
+        this.seed = (a * this.seed + c) % m;
+        return this.seed / m;
+    }
+}
+
+// could do a random seed with Math.random()
+const SEED = 1337;
+const rng = new RandomNumberGenerator(SEED);
+
 // gets the height at the position
 function getHeight(noise, x, y) {
     return noise.GetNoise(x, y) * 0.5 + 0.5;
@@ -13,11 +33,10 @@ function getHeight(noise, x, y) {
 // gets the color at the position
 function getColor(noise, x, y) {
     // const value = noise.GetNoise(x, y) * 0.5 + 0.5;
-    const value = 1.0;
     return {
-        r: value,
-        g: value,
-        b: value
+        r: rng.random() * 0.9 + 0.1,
+        g: rng.random() * 0.9 + 0.1,
+        b: rng.random() * 0.9 + 0.1
     };
 }
 
@@ -27,8 +46,8 @@ function generateMap(seed = 1337) {
         let points = [];
         for (let i = 0; i < numPoints; i++) {
             points.push({
-                x: Math.random(),
-                y: Math.random()
+                x: rng.random(),
+                y: rng.random()
             });
         }
         return points;
@@ -94,43 +113,26 @@ function generateMap(seed = 1337) {
     }
     
     const points = generateRandomPoints(POINT_COUNT);
-    const finalCentroids = lloydsAlgorithm(points, 1.0 / POINT_COUNT_AXIS, 2);
-
-    console.log(points.length);
-    console.log(finalCentroids.length);
-
-    let list = [];
-
-    finalCentroids.forEach(function(item, index, array){
-        list.push({
-            position: {
-                x: item.x * WORLD_WIDTH,
-                y: item.y * WORLD_WIDTH,
-                z: 0
-            },
-            color: getColor(null, item.x * WORLD_WIDTH, item.y * WORLD_WIDTH)
-        });
+    const centroids = lloydsAlgorithm(points, 1.0 / POINT_COUNT_AXIS, 2);
+    const polygonCenters = [];
+    centroids.forEach((item, index) => {
+        polygonCenters.push([
+            item.x, item.y
+        ]);
     });
 
-    // turn it into a mesh
-    const vertices = [];
-    const indices = [];
-    
-    const TRIANGLE_SIZE = WORLD_POINT_SCALE * 0.5;
-    const TRIANGLE_SIZE_HALF = TRIANGLE_SIZE * 0.5;
+    // list.forEach(function(item, index){
+    //     vertices.push(item.position.x, item.position.y, item.position.z);
+    //     vertices.push(item.color.r, item.color.g, item.color.b);
+    //     vertices.push(item.position.x - TRIANGLE_SIZE_HALF, item.position.y - TRIANGLE_SIZE, item.position.z);
+    //     vertices.push(item.color.r, item.color.g, item.color.b);
+    //     vertices.push(item.position.x + TRIANGLE_SIZE_HALF, item.position.y - TRIANGLE_SIZE, item.position.z);
+    //     vertices.push(item.color.r, item.color.g, item.color.b);
 
-    list.forEach(function(item, index){
-        vertices.push(item.position.x, item.position.y, item.position.z);
-        vertices.push(item.color.r, item.color.g, item.color.b);
-        vertices.push(item.position.x - TRIANGLE_SIZE_HALF, item.position.y - TRIANGLE_SIZE, item.position.z);
-        vertices.push(item.color.r, item.color.g, item.color.b);
-        vertices.push(item.position.x + TRIANGLE_SIZE_HALF, item.position.y - TRIANGLE_SIZE, item.position.z);
-        vertices.push(item.color.r, item.color.g, item.color.b);
-
-        indices.push(index * 3 + 0);
-        indices.push(index * 3 + 1);
-        indices.push(index * 3 + 2);
-    });
+    //     indices.push(index * 3 + 0);
+    //     indices.push(index * 3 + 1);
+    //     indices.push(index * 3 + 2);
+    // });
 
     // // add all the vertices
     // list.forEach(function(item, index, array){
@@ -152,13 +154,81 @@ function generateMap(seed = 1337) {
     //     }
     // }
 
+    const width = 1;
+    const height = 1;
+
+    // Create the Delaunay triangulation and then the Voronoi diagram
+    const delaunay = d3.Delaunay.from(polygonCenters);
+    const voronoi = delaunay.voronoi([0, 0, width, height]);
+
+    // Get the vertices of each Voronoi cell
+    const polygons = polygonCenters.map((_, i) => voronoi.cellPolygon(i));
+    // console.log(polygons);
+    
+    // turn it into a mesh
+    let index = 0;
+    const vertices = [];
+    const indices = [];
+
+    // create the mesh from the polygons
+    polygons.forEach((polygon, polygonIndex) => {
+        // skip if not a polygon
+        if(!polygon)
+        {
+            console.error("Polygon is null.");
+            return;
+        }
+
+        // skip if not enough points for a triangle
+        if(polygon.length < 3)
+        {
+            console.error("Polygon has less than 3 points.");
+            return;
+        }
+
+        // find center
+        let centerX = 0, centerY = 0;
+        polygon.forEach(([x, y]) => {
+            centerX += x;
+            centerY += y;
+        });
+        centerX /= polygon.length;
+        centerY /= polygon.length;
+
+        // get color
+        const color = getColor(null, centerX, centerY);
+        
+        // add center
+        vertices.push(centerX * WORLD_WIDTH, centerY * WORLD_WIDTH, 0.0);
+        vertices.push(color.r, color.g, color.b);
+
+        // create mesh by triangulating the vertices
+        for(let i = 0; i < polygon.length; i++){
+            // add side
+            vertices.push(polygon[i][0] * WORLD_WIDTH, polygon[i][1] * WORLD_WIDTH, 0.0);
+            vertices.push(color.r, color.g, color.b);
+
+            // add indices for the triangle
+            indices.push(index);
+            indices.push(index + 1 + i);
+            indices.push(index + 1 + (i + 1) % polygon.length);
+        }
+        
+        // increment the index
+        index += 1 + polygon.length;
+    });
+
     return {
-        points: list,
         mesh: {
             vertices: vertices,
             indices: indices
         }
     };
+}
+
+function generateMesh()
+{
+
 }
 
 // debug

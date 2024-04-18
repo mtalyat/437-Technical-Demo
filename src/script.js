@@ -105,13 +105,17 @@ function generateMap() {
     // gets the height at the position
     function getHeight(noise, x, y) {
         let value = 0;
+        let sum = 0;
 
         for(let i = 0; i < OCTAVES; i++){
             const j = 1 << i;
             const n = noise.GetNoise(x * j, y * j);
-            value += (1.0 / (i + 1)) * n;
+            const amp = 1.0 / (i + 1);
+            sum += amp;
+            value += amp * n;
         }
 
+        if(sum > 0) value /= sum;
         return (value * 0.5 + 0.5) * WORLD_HEIGHT;
     }
 

@@ -8,13 +8,17 @@ body, html {
   .container {
     display: flex;
     height: 100%;
+    width: 100%;
   }
 
   .sidebar {
     width: 200px;
+    height: 100vh;
+    overflow-y: auto;
     background-color: #2b2b2b;
     padding: 10px;
     box-sizing: border-box;
+    flex-shrink: 0;
   }
   
   #canvas {

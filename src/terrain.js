@@ -349,9 +349,20 @@ const GENERATOR = {
 // generates a position and color data for each point on the map
 function generateMap() {
     const rng = new RandomNumberGenerator(sessionData.seed);
+
+    let noiseType = FastNoiseLite.NoiseType.Perlin;
+
+    if(sessionData.noiseType === 'OpenSimplex2'){
+        noiseType = FastNoiseLite.NoiseType.OpenSimplex2;
+    } else if(sessionData.noiseType === 'OpenSimplex2S'){
+        noiseType = FastNoiseLite.NoiseType.OpenSimplex2S;
+    }
+
 const heightNoise = new FastNoiseLite(sessionData.seed);
+heightNoise.SetNoiseType(noiseType);
 heightNoise.SetFrequency(FREQUENCY_HEIGHT);
 const moistureNoise = new FastNoiseLite(sessionData.seed);
+moistureNoise.SetNoiseType(noiseType);
 moistureNoise.SetFrequency(FREQUENCY_MOISTURE);
 
     function generateRandomPoints(numPoints) {

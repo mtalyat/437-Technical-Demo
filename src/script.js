@@ -1,6 +1,7 @@
 const rotationSlider = document.getElementById('rotationSlider');
 const seedNumber = document.getElementById('seedNumber');
 const detailSlider = document.getElementById('detailSlider');
+const noiseTypeDropdown = document.getElementById('noiseTypeDropdown');
 const seaLevelSlider = document.getElementById('seaLevelSlider');
 
 const sessionData = {
@@ -10,6 +11,7 @@ const sessionData = {
     // generation data
     seed: seedNumber.value,
     detail: detailSlider.value,
+    noiseType: noiseTypeDropdown.value,
     seaLevel: seaLevelSlider.value,
 };
 
@@ -25,6 +27,11 @@ seedNumber.addEventListener('change', function(){
 
 detailSlider.addEventListener('change', function(){
     sessionData.detail = this.value;
+    terrainUpdate();
+});
+
+noiseTypeDropdown.addEventListener('change', function(){
+    sessionData.noiseType = this.value;
     terrainUpdate();
 });
 

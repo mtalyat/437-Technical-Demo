@@ -448,7 +448,8 @@ function generateMap() {
     }
 
     const points = generateRandomPoints(sessionData.detail * sessionData.detail);
-    const centroids = lloydsAlgorithm(points, 1.0 / sessionData.detail, sessionData.polygonIterations);
+    // if polygonIterations < 0, use random points
+    const centroids = sessionData.polygonIterations < 0 ? points : lloydsAlgorithm(points, 1.0 / sessionData.detail, sessionData.polygonIterations);
     const polygonCenters = [];
     centroids.forEach((item) => {
         polygonCenters.push([

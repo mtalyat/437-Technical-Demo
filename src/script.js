@@ -26,9 +26,47 @@ class RandomNumberGenerator {
 
 // could do a random seed by using Math.random() here
 const SEED = 1337;
-const rng = new RandomNumberGenerator(SEED);
-const heightNoise = new FastNoiseLite(SEED);
-heightNoise.SetFrequency(FREQUENCY);
+const RNG = new RandomNumberGenerator(SEED);
+const NOISE_HEIGHT = new FastNoiseLite(SEED);
+NOISE_HEIGHT.SetFrequency(FREQUENCY);
+
+// gets the height at the position
+function getHeight(x, y) {
+    let value = 0;
+    let sum = 0;
+
+    for(let i = 0; i < OCTAVES; i++){
+        const j = 1 << i;
+        const n = NOISE_HEIGHT.GetNoise(x * j, y * j);
+        const amp = 1.0 / (i + 1);
+        sum += amp;
+        value += amp * n;
+    }
+
+    if(sum > 0) value /= sum;
+    return (value * 0.5 + 0.5) * WORLD_HEIGHT;
+}
+
+function getMoisture(x, y){
+    return 1.0;
+}
+
+// gets the color at the position
+function getColor(x, y) {
+    const value = NOISE_HEIGHT.GetNoise(x, y) * 0.5 + 0.5;
+    return {
+        r: value,
+        g: value,
+        b: value
+    };
+}
+
+// holds functions for generating the terrain
+const GENERATOR = {
+    getHeight: getHeight,
+    getMoisture: getMoisture,
+    getColor: getColor,
+};
 
 // generates a position and color data for each point on the map
 function generateMap() {
@@ -36,8 +74,8 @@ function generateMap() {
         let points = [];
         for (let i = 0; i < numPoints; i++) {
             points.push({
-                x: rng.random(),
-                y: rng.random()
+                x: RNG.random(),
+                y: RNG.random()
             });
         }
         return points;
@@ -101,33 +139,6 @@ function generateMap() {
         }
         return centroids;
     }
-
-    // gets the height at the position
-    function getHeight(noise, x, y) {
-        let value = 0;
-        let sum = 0;
-
-        for(let i = 0; i < OCTAVES; i++){
-            const j = 1 << i;
-            const n = noise.GetNoise(x * j, y * j);
-            const amp = 1.0 / (i + 1);
-            sum += amp;
-            value += amp * n;
-        }
-
-        if(sum > 0) value /= sum;
-        return (value * 0.5 + 0.5) * WORLD_HEIGHT;
-    }
-
-    // gets the color at the position
-    function getColor(noise, x, y) {
-        const value = noise.GetNoise(x, y) * 0.5 + 0.5;
-        return {
-            r: value,
-            g: value,
-            b: value
-        };
-    }
     
     const points = generateRandomPoints(POINT_COUNT);
     const centroids = lloydsAlgorithm(points, 1.0 / POINT_COUNT_AXIS, 2);
@@ -180,7 +191,7 @@ function generateMap() {
                 y: y
             };
             points.push(point);
-            heights.set(point, getHeight(heightNoise, point.x, point.y));
+            heights.set(point, GENERATOR.getHeight(point.x, point.y));
 
             // add to center
             center.x += x;
@@ -191,12 +202,12 @@ function generateMap() {
 
         // set height for center and each point, if needed
         // center should not exist so just set it
-        heights.set(center, getHeight(heightNoise, center.x, center.y));
+        heights.set(center, GENERATOR.getHeight(center.x, center.y));
 
         nodes.push({
             points: points,
             center: center,
-            color: getColor(heightNoise, center.x, center.y)
+            color: GENERATOR.getColor(center.x, center.y)
         });
     });
 

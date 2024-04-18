@@ -130,12 +130,8 @@ function generateMap(seed = 1337) {
 
     // Get the vertices of each Voronoi cell
     const polygons = polygonCenters.map((_, i) => voronoi.cellPolygon(i));
-    // console.log(polygons);
-    
-    // turn it into a mesh
-    let index = 0;
-    const vertices = [];
-    const indices = [];
+
+    const nodes = [];
 
     // create the mesh from the polygons
     polygons.forEach((polygon, polygonIndex) => {
@@ -164,43 +160,59 @@ function generateMap(seed = 1337) {
 
         // get color
         const color = getColor(null, centerX, centerY);
-        
+
+        nodes.push({
+            points: polygon,
+            center: {
+                x: centerX,
+                y: centerY
+            },
+            color: color
+        });
+    });
+
+    return {
+        nodes: nodes
+    };
+}
+
+function generateMesh(map)
+{
+    // turn it into a mesh
+    let index = 0;
+    const vertices = [];
+    const indices = [];
+
+    // create the mesh from the polygons
+    map.nodes.forEach((node) => {
         // add center
-        vertices.push(centerX * WORLD_WIDTH, centerY * WORLD_WIDTH, 0.0);
-        vertices.push(color.r, color.g, color.b);
+        vertices.push(node.center.x * WORLD_WIDTH, node.center.y * WORLD_WIDTH, 0.0);
+        vertices.push(node.color.r, node.color.g, node.color.b);
 
         // create mesh by triangulating the vertices
-        for(let i = 0; i < polygon.length; i++){
+        for(let i = 0; i < node.points.length; i++){
             // add side
-            vertices.push(polygon[i][0] * WORLD_WIDTH, polygon[i][1] * WORLD_WIDTH, 0.0);
-            vertices.push(color.r, color.g, color.b);
+            vertices.push(node.points[i][0] * WORLD_WIDTH, node.points[i][1] * WORLD_WIDTH, 0.0);
+            vertices.push(node.color.r, node.color.g, node.color.b);
 
             // add indices for the triangle
             indices.push(index);
             indices.push(index + 1 + i);
-            indices.push(index + 1 + (i + 1) % polygon.length);
+            indices.push(index + 1 + (i + 1) % node.points.length);
         }
         
         // increment the index
-        index += 1 + polygon.length;
+        index += 1 + node.points.length;
     });
 
     return {
-        mesh: {
-            vertices: vertices,
-            indices: indices
-        }
+        vertices: vertices,
+        indices: indices
     };
 }
 
-function generateMesh()
-{
-
-}
-
-// debug
 const map = generateMap(Math.floor(Math.random() * 10001));
-
-setObjectMesh(map.mesh);
+const mesh = generateMesh(map);
+setObjectMesh(mesh);
 
 render();

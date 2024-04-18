@@ -111,19 +111,16 @@ function createIndexBuffer(array) {
 }
 
 function setRenderObjectMesh(mesh) {
-    sessionData.renderData.objectMesh = mesh;
+    renderData.objectMesh = mesh;
 
-    sessionData.renderData.vertexBuffer = createVertexBuffer(mesh.vertices);
-    sessionData.renderData.indexBuffer = createIndexBuffer(mesh.indices);
+    renderData.vertexBuffer = createVertexBuffer(mesh.vertices);
+    renderData.indexBuffer = createIndexBuffer(mesh.indices);
 }
 
-const sessionData = {
-    renderData: {
-        objectMesh: null,
-        vertexBuffer: null,
-        indexBuffer: null
-    },
-    rotation: Math.PI * 0.25, // start at 45 deg angle
+const renderData = {
+    objectMesh: null,
+    vertexBuffer: null,
+    indexBuffer: null
 };
 
 function renderUpdate() {
@@ -147,7 +144,7 @@ function renderUpdate() {
     // object
     const objectMatrix = mat4.create();
     // move so object is centered
-    mat4.rotateY(objectMatrix, objectMatrix, sessionData.rotation);
+    mat4.rotateY(objectMatrix, objectMatrix, (sessionData.rotation / 360) * Math.PI * 2);
 
     gl.useProgram(programInfo.program);
 
@@ -157,14 +154,12 @@ function renderUpdate() {
 }
 
 // call this to render to the screen
-function render() {
+function startRendering() {
     // resize the canvas to the display size (if necessary)
     if (resizeCanvasToDisplaySize(gl.canvas)) {
         // adjust WebGL viewport to new canvas size
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     }
-
-    renderUpdate();
 
     function loop() {
         // clear old data
@@ -178,8 +173,8 @@ function render() {
         gl.useProgram(programInfo.program);
 
         // bind data to be rendered
-        gl.bindBuffer(gl.ARRAY_BUFFER, sessionData.renderData.vertexBuffer);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sessionData.renderData.indexBuffer);
+        gl.bindBuffer(gl.ARRAY_BUFFER, renderData.vertexBuffer);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, renderData.indexBuffer);
         gl.enableVertexAttribArray(programInfo.attributes.vertexPosition);
         gl.vertexAttribPointer(programInfo.attributes.vertexPosition, 3, gl.FLOAT, false, 36, 0);
         gl.enableVertexAttribArray(programInfo.attributes.colorPosition);
@@ -188,7 +183,7 @@ function render() {
         gl.vertexAttribPointer(programInfo.attributes.normalPosition, 3, gl.FLOAT, false, 36, 24);
 
         // draw it
-        gl.drawElements(gl.TRIANGLES, sessionData.renderData.objectMesh.indices.length, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.TRIANGLES, renderData.objectMesh.indices.length, gl.UNSIGNED_SHORT, 0);
 
         // keep drawing every frame
         window.requestAnimationFrame(loop);

@@ -283,22 +283,16 @@ class RandomNumberGenerator {
     }
 }
 
-// could do a random seed by using Math.random() here
-const SEED = 1337;
-const RNG = new RandomNumberGenerator(SEED);
-const NOISE_HEIGHT = new FastNoiseLite(SEED);
-NOISE_HEIGHT.SetFrequency(FREQUENCY_HEIGHT);
-const NOISE_MOISTURE = new FastNoiseLite(SEED);
-NOISE_MOISTURE.SetFrequency(FREQUENCY_MOISTURE);
+
 
 // gets the height at the position
-function getHeight(x, y) {
+function getHeight(noise, x, y) {
     let value = 0;
     let sum = 0;
 
     for (let i = 0; i < OCTAVES; i++) {
         const j = 1 << i;
-        const n = NOISE_HEIGHT.GetNoise(x * j, y * j);
+        const n = noise.GetNoise(x * j, y * j);
         const amp = 1.0 / (i + 1);
         sum += amp;
         value += amp * n;
@@ -308,8 +302,8 @@ function getHeight(x, y) {
     return value * 0.5 + 0.5; // get between 0 and 1
 }
 
-function getHeightIsland(x, y) {
-    const height = getHeight(x, y);
+function getHeightIsland(noise,x, y) {
+    const height = getHeight(noise, x, y);
 
     // scale based on distance to center
     const distanceX = x - 0.5;
@@ -320,8 +314,8 @@ function getHeightIsland(x, y) {
     return height * (1.0 - (distance / Math.sqrt(0.5)));
 }
 
-function getMoisture(x, y) {
-    return NOISE_MOISTURE.GetNoise(x, y) * 0.5 + 0.5;
+function getMoisture(noise,x, y) {
+    return noise.GetNoise(x, y) * 0.5 + 0.5;
 }
 
 // gets the color at the position based on the height and moisture
@@ -358,12 +352,18 @@ const GENERATOR = {
 
 // generates a position and color data for each point on the map
 function generateMap() {
+    const rng = new RandomNumberGenerator(sessionData.seed);
+const heightNoise = new FastNoiseLite(sessionData.seed);
+heightNoise.SetFrequency(FREQUENCY_HEIGHT);
+const moistureNoise = new FastNoiseLite(sessionData.seed);
+moistureNoise.SetFrequency(FREQUENCY_MOISTURE);
+
     function generateRandomPoints(numPoints) {
         let points = [];
         for (let i = 0; i < numPoints; i++) {
             points.push({
-                x: RNG.random(),
-                y: RNG.random()
+                x: rng.random(),
+                y: rng.random()
             });
         }
         return points;
@@ -430,7 +430,7 @@ function generateMap() {
 
     function generateHeight(x, y) {
         // get height and clamp it with sea level
-        const height = GENERATOR.getHeight(x, y);
+        const height = GENERATOR.getHeight(heightNoise, x, y);
         return Math.max(WORLD_SEA_LEVEL, height);
     }
 
@@ -496,8 +496,8 @@ function generateMap() {
         // center should not exist so just set it
         heights.set(center, generateHeight(center.x, center.y) * WORLD_HEIGHT);
 
-        const height = GENERATOR.getHeight(center.x, center.y);
-        const moisture = GENERATOR.getMoisture(center.x, center.y);
+        const height = GENERATOR.getHeight(heightNoise, center.x, center.y);
+        const moisture = GENERATOR.getMoisture(moistureNoise, center.x, center.y);
 
         nodes.push({
             points: points,

@@ -1,5 +1,18 @@
+const seedNumber = document.getElementById('seedNumber');
+const rotationSlider = document.getElementById('rotationSlider');
+
+const sessionData = {
+    seed: seedNumber.value,
+    rotation: rotationSlider.value,
+};
+
+document.getElementById('seedNumber').addEventListener('change', function(){
+    sessionData.seed = this.value;
+    terrainUpdate();
+});
+
 document.getElementById('rotationSlider').addEventListener('input', function(){
-    sessionData.rotation = (this.value / 360) * Math.PI * 2;
+    sessionData.rotation = this.value;
     renderUpdate();
 });
 
@@ -24,16 +37,22 @@ document.addEventListener('keydown', function(event) {
     }
 });
 
+function terrainUpdate(){
+        // generate the map data
+        const map = generateMap();
+
+        // turn it into a mesh
+        const mesh = generateMesh(map);
+    
+        // render the mesh
+        setRenderObjectMesh(mesh);
+}
+
 function main() {
-    // generate the map data
-    const map = generateMap();
+    terrainUpdate();
+    renderUpdate();
 
-    // turn it into a mesh
-    const mesh = generateMesh(map);
-
-    // render the mesh
-    setRenderObjectMesh(mesh);
-    render();
+    startRendering();
 }
 
 main();

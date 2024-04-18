@@ -1,5 +1,6 @@
 // rendering
 const rotationSlider = document.getElementById('rotationSlider');
+const useLightingCheckbox = document.getElementById('useLightingCheckbox');
 // generation
 const seedNumber = document.getElementById('seedNumber');
 const detailSlider = document.getElementById('detailSlider');
@@ -19,6 +20,7 @@ const seaLevelSlider = document.getElementById('seaLevelSlider');
 const sessionData = {
     // rendering data
     rotation: Number(rotationSlider.value),
+    useLighting: Boolean(useLightingCheckbox.value),
 
     // generation data
     seed: Number(seedNumber.value),
@@ -40,6 +42,11 @@ const sessionData = {
 
 rotationSlider.addEventListener('input', function(){
     sessionData.rotation = Number(this.value);
+    renderUpdate();
+});
+
+useLightingCheckbox.addEventListener('input', function(){
+    sessionData.useLighting = Boolean(this.checked);
     renderUpdate();
 });
 

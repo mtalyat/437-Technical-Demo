@@ -23,15 +23,22 @@ in vec3 color;
 in vec3 normal;
 out vec4 outColor;
 
+uniform int uEnableLighting;
 uniform vec3 uLightDirection;
 
 void main() {
-    vec3 normalizedNormal = normalize(normal);
-    float diffuse = max(dot(normalizedNormal, -uLightDirection), 0.0);
-    vec3 lightColor = vec3(1.0, 1.0, 1.0);
-    vec3 objectColor = color;
-    vec3 diffuseLight = diffuse * lightColor * objectColor;
-    outColor = vec4(diffuseLight, 1.0);
+    if(uEnableLighting == 0)
+    {
+        outColor = vec4(color, 1.0);
+    } else
+    {
+        vec3 normalizedNormal = normalize(normal);
+        float diffuse = max(dot(normalizedNormal, -uLightDirection), 0.0);
+        vec3 lightColor = vec3(1.0, 1.0, 1.0);
+        vec3 objectColor = color;
+        vec3 diffuseLight = diffuse * lightColor * objectColor;
+        outColor = vec4(diffuseLight, 1.0);
+    }
 }
 `;
 
@@ -77,6 +84,7 @@ const programInfo = {
     uniforms: {
         cameraMatrix: gl.getUniformLocation(shaderProgram, 'uCameraMatrix'),
         objectMatrix: gl.getUniformLocation(shaderProgram, 'uObjectMatrix'),
+        enableLighting: gl.getUniformLocation(shaderProgram, 'uEnableLighting'),
         lightDirection: gl.getUniformLocation(shaderProgram, 'uLightDirection'),
     }
 };
@@ -151,6 +159,7 @@ function renderUpdate() {
     gl.uniformMatrix4fv(programInfo.uniforms.cameraMatrix, false, cameraMatrix);
     gl.uniformMatrix4fv(programInfo.uniforms.objectMatrix, false, objectMatrix);
     gl.uniform3fv(programInfo.uniforms.lightDirection, [0, -1, 0]);
+    gl.uniform1i(programInfo.uniforms.enableLighting, sessionData.useLighting ? 1 : 0);
 }
 
 // call this to render to the screen

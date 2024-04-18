@@ -4,6 +4,7 @@ const WORLD_WIDTH = 10.0;
 const WORLD_POINT_SCALE = WORLD_WIDTH / POINT_COUNT_AXIS;
 const WORLD_HEIGHT = 2.0;
 const WORLD_WATER_LEVEL = 0.5;
+const OCTAVES = 2;
 const FREQUENCY = 2.0;
 const BLEND_COLORS = false;
 
@@ -103,14 +104,20 @@ function generateMap() {
 
     // gets the height at the position
     function getHeight(noise, x, y) {
-        const value = (noise.GetNoise(x, y) * 0.5 + 0.5) * WORLD_HEIGHT;
-        return value;
+        let value = 0;
+
+        for(let i = 0; i < OCTAVES; i++){
+            const j = 1 << i;
+            const n = noise.GetNoise(x * j, y * j);
+            value += (1.0 / (i + 1)) * n;
+        }
+
+        return (value * 0.5 + 0.5) * WORLD_HEIGHT;
     }
 
     // gets the color at the position
     function getColor(noise, x, y) {
         const value = noise.GetNoise(x, y) * 0.5 + 0.5;
-        console.log(value);
         return {
             r: value,
             g: value,

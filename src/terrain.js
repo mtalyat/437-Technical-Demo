@@ -305,7 +305,7 @@ function getMoisture(noise, x, y) {
 }
 
 // gets the color at the position based on the height and moisture
-function getColor(height, moisture, x, y) {
+function getColor(height, moisture, rng) {
     // if height below sea level, return water color, based on depth
     if (height <= sessionData.seaLevel) {
         const depth = (1 - ((sessionData.seaLevel - height) / sessionData.seaLevel)) * 0.5 + 0.5;
@@ -329,7 +329,7 @@ function getColor(height, moisture, x, y) {
     };
 }
 
-function getColorHeight(height, moisture, x, y) {
+function getColorHeight(height, moisture, rng) {
     // just use height for a black -> white gradient
     const value = height * 0.9 + 0.1;
     return {
@@ -339,13 +339,21 @@ function getColorHeight(height, moisture, x, y) {
     };
 }
 
-function getColorMoisture(height, moisture, x, y) {
+function getColorMoisture(height, moisture, rng) {
     // just use moisture for a black -> white gradient
     const value = moisture * 0.9 + 0.1;
     return {
         r: value,
         g: value,
         b: value
+    };
+}
+
+function getColorRandom(height, moisture, rng) {
+    return {
+        r: rng.random(),
+        g: rng.random(),
+        b: rng.random()
     };
 }
 
@@ -519,6 +527,8 @@ function generateMap() {
 }
 
 function generateMesh(map) {
+    const rng = new RandomNumberGenerator(sessionData.seed);
+
     function getHeight(position) {
         const height = map.heights.get(position)
         return Math.max(sessionData.seaLevel, height);
@@ -549,7 +559,7 @@ function generateMesh(map) {
 
     // create the mesh from the polygons
     map.nodes.forEach((node) => {
-        const color = sessionData.getColorFunction(node.height, node.moisture, node.center.x, node.center.y);
+        const color = sessionData.getColorFunction(node.height, node.moisture, rng);
 
         const center = {
             x: node.center.x * WORLD_WIDTH - WORLD_WIDTH_HALF,

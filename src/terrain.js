@@ -329,6 +329,26 @@ function getColor(height, moisture, x, y) {
     };
 }
 
+function getColorHeight(height, moisture, x, y) {
+    // just use height for a black -> white gradient
+    const value = height * 0.9 + 0.1;
+    return {
+        r: value,
+        g: value,
+        b: value
+    };
+}
+
+function getColorMoisture(height, moisture, x, y) {
+    // just use moisture for a black -> white gradient
+    const value = moisture * 0.9 + 0.1;
+    return {
+        r: value,
+        g: value,
+        b: value
+    };
+}
+
 // generates a position and color data for each point on the map
 function generateMap() {
     const rng = new RandomNumberGenerator(sessionData.seed);

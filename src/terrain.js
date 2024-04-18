@@ -4,7 +4,6 @@ const WORLD_WIDTH = 10.0;
 const WORLD_WIDTH_HALF = WORLD_WIDTH * 0.5;
 const WORLD_POINT_SCALE = WORLD_WIDTH / POINT_COUNT_AXIS;
 const WORLD_HEIGHT = 2.0;
-const WORLD_SEA_LEVEL = 0.25;
 const OCTAVES = 2;
 const FREQUENCY_HEIGHT = 2.0;
 const FREQUENCY_MOISTURE = 1.0;
@@ -321,8 +320,8 @@ function getMoisture(noise,x, y) {
 // gets the color at the position based on the height and moisture
 function getColor(height, moisture, x, y) {
     // if height below sea level, return water color, based on depth
-    if (height <= WORLD_SEA_LEVEL) {
-        const depth = (1 - ((WORLD_SEA_LEVEL - height) / WORLD_SEA_LEVEL)) * 0.5 + 0.5;
+    if (height <= sessionData.seaLevel) {
+        const depth = (1 - ((sessionData.seaLevel - height) / sessionData.seaLevel)) * 0.5 + 0.5;
         return {
             r: 28 / 255 * depth,
             g: 30 / 255 * depth,
@@ -431,7 +430,7 @@ moistureNoise.SetFrequency(FREQUENCY_MOISTURE);
     function generateHeight(x, y) {
         // get height and clamp it with sea level
         const height = GENERATOR.getHeight(heightNoise, x, y);
-        return Math.max(WORLD_SEA_LEVEL, height);
+        return Math.max(sessionData.seaLevel, height);
     }
 
     const points = generateRandomPoints(POINT_COUNT);
@@ -516,7 +515,7 @@ moistureNoise.SetFrequency(FREQUENCY_MOISTURE);
 function generateMesh(map) {
     function getHeight(position) {
         const height = map.heights.get(position)
-        return Math.max(WORLD_SEA_LEVEL, height);
+        return Math.max(sessionData.seaLevel, height);
     }
 
     // given 3 positions, calculates the normal vector

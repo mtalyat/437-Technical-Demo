@@ -1,19 +1,29 @@
-const seedNumber = document.getElementById('seedNumber');
 const rotationSlider = document.getElementById('rotationSlider');
+const seedNumber = document.getElementById('seedNumber');
+const seaLevelSlider = document.getElementById('seaLevelSlider');
 
 const sessionData = {
-    seed: seedNumber.value,
+    // rendering data
     rotation: rotationSlider.value,
+
+    // generation data
+    seed: seedNumber.value,
+    seaLevel: seaLevelSlider.value,
 };
 
-document.getElementById('seedNumber').addEventListener('change', function(){
+rotationSlider.addEventListener('input', function(){
+    sessionData.rotation = this.value;
+    renderUpdate();
+});
+
+seedNumber.addEventListener('change', function(){
     sessionData.seed = this.value;
     terrainUpdate();
 });
 
-document.getElementById('rotationSlider').addEventListener('input', function(){
-    sessionData.rotation = this.value;
-    renderUpdate();
+seaLevelSlider.addEventListener('input', function(){
+    sessionData.seaLevel = this.value;
+    terrainUpdate();
 });
 
 document.addEventListener('keydown', function(event) {

@@ -1,3 +1,8 @@
+document.getElementById('rotationSlider').addEventListener('input', function(){
+    sessionData.rotation = (this.value / 360) * Math.PI * 2;
+    renderUpdate();
+});
+
 document.addEventListener('keydown', function(event) {
     switch (event.key) {
         case 'ArrowUp':
@@ -18,7 +23,6 @@ document.addEventListener('keydown', function(event) {
             break;
     }
 });
-
 
 function main() {
     // generate the map data

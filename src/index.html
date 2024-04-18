@@ -1,20 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Terrain Generation Demo</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="container">
         <div class="sidebar">
             <h1>Terrain Generation Demo</h1>
-            <label for="slider1">Slider 1:</label>
-            <input type="range" id="slider1" min="0" max="100" value="50">
+            <label for="rotationSlider">Rotation:</label>
+            <input type="range" id="rotationSlider" min="0" max="360" value="45">
             <br>
             <label for="checkbox1">Checkbox 1:</label>
             <input type="checkbox" id="checkbox1" checked>
+            <br>
+            <label for="myNumber">Enter a number:</label>
+            <input type="number" id="myNumber" name="myNumber" min="0" max="100" step="1" value="50">
         </div>
         <canvas id="canvas"></canvas>
     </div>
@@ -26,4 +31,5 @@
     <script src="terrain.js"></script>
     <script src="script.js"></script>
 </body>
+
 </html>

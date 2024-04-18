@@ -23,14 +23,19 @@ const sessionData = {
     detail: Number(detailSlider.value),
     noiseType: noiseTypeDropdown.value,
     //      height
+    getHeightFunction: window['getHeightIsland'],
     heightFrequency: Number(heightFrequencyNumber.value),
     fractalType: fractalTypeDropdown.value,
     octaves: Number(octavesNumber.value),
     lacunarity: Number(lacunarityNumber.value),
     gain: Number(gainNumber.value),
     //      moisture
+    getMoistureFunction: window['getMoisture'],
     moistureFrequency: Number(moistureFrequencyNumber.value),
     seaLevel: Number(seaLevelSlider.value),
+    
+    // misc.
+    getColorFunction: window['getColor']
 };
 
 rotationSlider.addEventListener('input', function(){

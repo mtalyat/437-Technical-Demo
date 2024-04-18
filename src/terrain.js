@@ -329,13 +329,6 @@ function getColor(height, moisture, x, y) {
     };
 }
 
-// holds functions for generating the terrain
-const GENERATOR = {
-    getHeight: getHeightIsland,
-    getMoisture: getMoisture,
-    getColor: getColor,
-};
-
 // generates a position and color data for each point on the map
 function generateMap() {
     const rng = new RandomNumberGenerator(sessionData.seed);
@@ -422,7 +415,7 @@ function generateMap() {
 
     function generateHeight(x, y) {
         // get height and clamp it with sea level
-        const height = GENERATOR.getHeight(heightNoise, x, y);
+        const height = sessionData.getHeightFunction(heightNoise, x, y);
         return Math.max(sessionData.seaLevel, height);
     }
 
@@ -488,8 +481,8 @@ function generateMap() {
         // center should not exist so just set it
         heights.set(center, generateHeight(center.x, center.y) * WORLD_HEIGHT);
 
-        const height = GENERATOR.getHeight(heightNoise, center.x, center.y);
-        const moisture = GENERATOR.getMoisture(moistureNoise, center.x, center.y);
+        const height = sessionData.getHeightFunction(heightNoise, center.x, center.y);
+        const moisture = sessionData.getMoistureFunction(moistureNoise, center.x, center.y);
 
         nodes.push({
             points: points,
@@ -536,7 +529,7 @@ function generateMesh(map) {
 
     // create the mesh from the polygons
     map.nodes.forEach((node) => {
-        const color = GENERATOR.getColor(node.height, node.moisture, node.center.x, node.center.y);
+        const color = sessionData.getColorFunction(node.height, node.moisture, node.center.x, node.center.y);
 
         const center = {
             x: node.center.x * WORLD_WIDTH - WORLD_WIDTH_HALF,

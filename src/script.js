@@ -44,7 +44,19 @@ function getHeight(x, y) {
     }
 
     if(sum > 0) value /= sum;
-    return (value * 0.5 + 0.5) * WORLD_HEIGHT;
+    return value * 0.5 + 0.5; // get between 0 and 1
+}
+
+function getHeightIsland(x, y){
+    const height = getHeight(x, y);
+
+    // scale based on distance to center
+    const distanceX = x - 0.5;
+    const distanceY = y - 0.5;
+    const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+
+    // max distance to corner is always distance from (0, 0) to (0.5, 0.5), which is sqrt(0.5) simplified
+    return height * (1.0 - (distance / Math.sqrt(0.5)));
 }
 
 function getMoisture(x, y){
@@ -52,18 +64,17 @@ function getMoisture(x, y){
 }
 
 // gets the color at the position
-function getColor(x, y) {
-    const value = NOISE_HEIGHT.GetNoise(x, y) * 0.5 + 0.5;
+function getColor(height, moisture, x, y) {
     return {
-        r: value,
-        g: value,
-        b: value
+        r: height,
+        g: height,
+        b: height
     };
 }
 
 // holds functions for generating the terrain
 const GENERATOR = {
-    getHeight: getHeight,
+    getHeight: getHeightIsland,
     getMoisture: getMoisture,
     getColor: getColor,
 };
@@ -191,7 +202,7 @@ function generateMap() {
                 y: y
             };
             points.push(point);
-            heights.set(point, GENERATOR.getHeight(point.x, point.y));
+            heights.set(point, GENERATOR.getHeight(point.x, point.y) * WORLD_HEIGHT);
 
             // add to center
             center.x += x;
@@ -202,12 +213,13 @@ function generateMap() {
 
         // set height for center and each point, if needed
         // center should not exist so just set it
-        heights.set(center, GENERATOR.getHeight(center.x, center.y));
+        const centerHeight = GENERATOR.getHeight(center.x, center.y);
+        heights.set(center, centerHeight * WORLD_HEIGHT);
 
         nodes.push({
             points: points,
             center: center,
-            color: GENERATOR.getColor(center.x, center.y)
+            color: GENERATOR.getColor(centerHeight, 1.0, center.x, center.y)
         });
     });
 

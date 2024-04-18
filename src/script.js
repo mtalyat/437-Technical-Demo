@@ -1,5 +1,6 @@
 const rotationSlider = document.getElementById('rotationSlider');
 const seedNumber = document.getElementById('seedNumber');
+const detailSlider = document.getElementById('detailSlider');
 const seaLevelSlider = document.getElementById('seaLevelSlider');
 
 const sessionData = {
@@ -8,6 +9,7 @@ const sessionData = {
 
     // generation data
     seed: seedNumber.value,
+    detail: detailSlider.value,
     seaLevel: seaLevelSlider.value,
 };
 
@@ -18,6 +20,11 @@ rotationSlider.addEventListener('input', function(){
 
 seedNumber.addEventListener('change', function(){
     sessionData.seed = this.value;
+    terrainUpdate();
+});
+
+detailSlider.addEventListener('change', function(){
+    sessionData.detail = this.value;
     terrainUpdate();
 });
 

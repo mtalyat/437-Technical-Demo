@@ -1,8 +1,5 @@
-const POINT_COUNT_AXIS = 50;
-const POINT_COUNT = POINT_COUNT_AXIS * POINT_COUNT_AXIS;
 const WORLD_WIDTH = 10.0;
 const WORLD_WIDTH_HALF = WORLD_WIDTH * 0.5;
-const WORLD_POINT_SCALE = WORLD_WIDTH / POINT_COUNT_AXIS;
 const WORLD_HEIGHT = 2.0;
 const OCTAVES = 2;
 const FREQUENCY_HEIGHT = 2.0;
@@ -433,8 +430,8 @@ moistureNoise.SetFrequency(FREQUENCY_MOISTURE);
         return Math.max(sessionData.seaLevel, height);
     }
 
-    const points = generateRandomPoints(POINT_COUNT);
-    const centroids = lloydsAlgorithm(points, 1.0 / POINT_COUNT_AXIS, 2);
+    const points = generateRandomPoints(sessionData.detail * sessionData.detail);
+    const centroids = lloydsAlgorithm(points, 1.0 / sessionData.detail, 2);
     const polygonCenters = [];
     centroids.forEach((item) => {
         polygonCenters.push([

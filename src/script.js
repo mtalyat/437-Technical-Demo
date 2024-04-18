@@ -5,7 +5,8 @@ const WORLD_POINT_SCALE = WORLD_WIDTH / POINT_COUNT_AXIS;
 const WORLD_HEIGHT = 2.0;
 const WORLD_WATER_LEVEL = 0.5;
 const OCTAVES = 2;
-const FREQUENCY = 2.0;
+const FREQUENCY_HEIGHT = 2.0;
+const FREQUENCY_MOISTURE = 1.0;
 const BLEND_COLORS = false;
 
 // use a custom class to randomly generate numbers using a seed
@@ -28,7 +29,9 @@ class RandomNumberGenerator {
 const SEED = 1337;
 const RNG = new RandomNumberGenerator(SEED);
 const NOISE_HEIGHT = new FastNoiseLite(SEED);
-NOISE_HEIGHT.SetFrequency(FREQUENCY);
+NOISE_HEIGHT.SetFrequency(FREQUENCY_HEIGHT);
+const NOISE_MOISTURE = new FastNoiseLite(SEED);
+NOISE_MOISTURE.SetFrequency(FREQUENCY_MOISTURE);
 
 // gets the height at the position
 function getHeight(x, y) {
@@ -60,15 +63,15 @@ function getHeightIsland(x, y){
 }
 
 function getMoisture(x, y){
-    return 1.0;
+    return NOISE_MOISTURE.GetNoise(x, y) * 0.5 + 0.5;
 }
 
 // gets the color at the position
 function getColor(height, moisture, x, y) {
     return {
-        r: height,
-        g: height,
-        b: height
+        r: moisture,
+        g: moisture,
+        b: moisture
     };
 }
 
@@ -216,10 +219,13 @@ function generateMap() {
         const centerHeight = GENERATOR.getHeight(center.x, center.y);
         heights.set(center, centerHeight * WORLD_HEIGHT);
 
+        const moisture = GENERATOR.getMoisture(center.x, center.y);
+
         nodes.push({
             points: points,
             center: center,
-            color: GENERATOR.getColor(centerHeight, 1.0, center.x, center.y)
+            moisture: moisture,
+            color: GENERATOR.getColor(centerHeight, moisture, center.x, center.y)
         });
     });
 

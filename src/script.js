@@ -5,6 +5,7 @@ const useLightingCheckbox = document.getElementById('useLightingCheckbox');
 // generation
 const seedNumber = document.getElementById('seedNumber');
 const detailSlider = document.getElementById('detailSlider');
+const polygonModeDropdown = document.getElementById('polygonModeDropdown');
 const colorFunctionDropdown = document.getElementById('colorFunctionDropdown');
 const noiseTypeDropdown = document.getElementById('noiseTypeDropdown');
 //      height
@@ -27,6 +28,7 @@ const sessionData = {
     // generation data
     seed: Number(seedNumber.value),
     detail: Number(detailSlider.value),
+    polygonIterations: Number(polygonModeDropdown.value),
     getColorFunction: window[colorFunctionDropdown.value],
     noiseType: noiseTypeDropdown.value,
     //      height
@@ -64,6 +66,11 @@ seedNumber.addEventListener('change', function () {
 
 detailSlider.addEventListener('change', function () {
     sessionData.detail = Number(this.value);
+    terrainUpdate();
+});
+
+polygonModeDropdown.addEventListener('change', function () {
+    sessionData.polygonIterations = Number(this.value);
     terrainUpdate();
 });
 

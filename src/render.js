@@ -130,7 +130,7 @@ function render() {
     const far = 100.0;
     const projectionMatrix = mat4.create();
     mat4.perspective(projectionMatrix, fov, aspect, near, far);
-    
+
     const cameraPos = vec3.fromValues(-8.0, 5.6, -8.0);
     const targetPos = vec3.fromValues(0.0, 0.0, 0.0);
     const up = vec3.fromValues(0.0, 1.0, 0.0);
@@ -144,37 +144,42 @@ function render() {
     // move so object is centered
     mat4.translate(objectMatrix, objectMatrix, [WORLD_WIDTH * -0.5, 0.0, WORLD_WIDTH * -0.5]);
 
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.clearDepth(1.0);
-    gl.enable(gl.DEPTH_TEST);
-    gl.depthFunc(gl.LEQUAL);
-
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
     gl.useProgram(programInfo.program);
 
     gl.uniformMatrix4fv(programInfo.uniforms.cameraMatrix, false, cameraMatrix);
     gl.uniformMatrix4fv(programInfo.uniforms.objectMatrix, false, objectMatrix);
     gl.uniform3fv(programInfo.uniforms.lightDirection, [0, -1, 0]);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, renderData.vertexBuffer);
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, renderData.indexBuffer);
-    gl.enableVertexAttribArray(programInfo.attributes.vertexPosition);
-    gl.vertexAttribPointer(programInfo.attributes.vertexPosition, 3, gl.FLOAT, false, 36, 0);
-    gl.enableVertexAttribArray(programInfo.attributes.colorPosition);
-    gl.vertexAttribPointer(programInfo.attributes.colorPosition, 3, gl.FLOAT, false, 36, 12);
-    gl.enableVertexAttribArray(programInfo.attributes.normalPosition);
-    gl.vertexAttribPointer(programInfo.attributes.normalPosition, 3, gl.FLOAT, false, 36, 24);
+    function loop() {
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.clearDepth(1.0);
+        gl.enable(gl.DEPTH_TEST);
+        gl.depthFunc(gl.LEQUAL);
 
-    // gl.drawArrays(gl.TRIANGLES, 0, 6);
-    gl.drawElements(gl.TRIANGLES, renderData.objectMesh.indices.length, gl.UNSIGNED_SHORT, 0);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // // keep drawing every frame
-    // window.requestAnimationFrame(render);
+        gl.useProgram(programInfo.program);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, renderData.vertexBuffer);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, renderData.indexBuffer);
+        gl.enableVertexAttribArray(programInfo.attributes.vertexPosition);
+        gl.vertexAttribPointer(programInfo.attributes.vertexPosition, 3, gl.FLOAT, false, 36, 0);
+        gl.enableVertexAttribArray(programInfo.attributes.colorPosition);
+        gl.vertexAttribPointer(programInfo.attributes.colorPosition, 3, gl.FLOAT, false, 36, 12);
+        gl.enableVertexAttribArray(programInfo.attributes.normalPosition);
+        gl.vertexAttribPointer(programInfo.attributes.normalPosition, 3, gl.FLOAT, false, 36, 24);
+
+        // gl.drawArrays(gl.TRIANGLES, 0, 6);
+        gl.drawElements(gl.TRIANGLES, renderData.objectMesh.indices.length, gl.UNSIGNED_SHORT, 0);
+
+        // keep drawing every frame
+        window.requestAnimationFrame(loop);
+    }
+
+    loop();
 }
 
-function setObjectMesh(mesh)
-{
+function setObjectMesh(mesh) {
     renderData.objectMesh = mesh;
 
     renderData.vertexBuffer = createVertexBuffer(mesh.vertices);

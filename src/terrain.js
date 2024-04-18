@@ -1,6 +1,7 @@
 const POINT_COUNT_AXIS = 50;
 const POINT_COUNT = POINT_COUNT_AXIS * POINT_COUNT_AXIS;
 const WORLD_WIDTH = 10.0;
+const WORLD_WIDTH_HALF = WORLD_WIDTH * 0.5;
 const WORLD_POINT_SCALE = WORLD_WIDTH / POINT_COUNT_AXIS;
 const WORLD_HEIGHT = 2.0;
 const WORLD_SEA_LEVEL = 0.25;
@@ -546,9 +547,9 @@ function generateMesh(map) {
         const color = GENERATOR.getColor(node.height, node.moisture, node.center.x, node.center.y);
 
         const center = {
-            x: node.center.x * WORLD_WIDTH,
+            x: node.center.x * WORLD_WIDTH - WORLD_WIDTH_HALF,
             y: getHeight(node.center),
-            z: node.center.y * WORLD_WIDTH
+            z: node.center.y * WORLD_WIDTH - WORLD_WIDTH_HALF
         };
 
         // create mesh by triangulating the vertices
@@ -558,14 +559,14 @@ function generateMesh(map) {
 
             // vertex positions
             const position1 = {
-                x: node.points[i].x * WORLD_WIDTH,
+                x: node.points[i].x * WORLD_WIDTH - WORLD_WIDTH_HALF,
                 y: getHeight(node.points[i]),
-                z: node.points[i].y * WORLD_WIDTH
+                z: node.points[i].y * WORLD_WIDTH - WORLD_WIDTH_HALF
             }
             const position2 = {
-                x: node.points[j].x * WORLD_WIDTH,
+                x: node.points[j].x * WORLD_WIDTH - WORLD_WIDTH_HALF,
                 y: getHeight(node.points[j]),
-                z: node.points[j].y * WORLD_WIDTH
+                z: node.points[j].y * WORLD_WIDTH - WORLD_WIDTH_HALF
             }
             const normal = calculateNormal(center, position1, position2);
 

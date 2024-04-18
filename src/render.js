@@ -110,11 +110,51 @@ function createIndexBuffer(array) {
     return buffer;
 }
 
-const renderData = {
-    objectMesh: null,
-    vertexBuffer: null,
-    indexBuffer: null
+function setRenderObjectMesh(mesh) {
+    sessionData.renderData.objectMesh = mesh;
+
+    sessionData.renderData.vertexBuffer = createVertexBuffer(mesh.vertices);
+    sessionData.renderData.indexBuffer = createIndexBuffer(mesh.indices);
+}
+
+const sessionData = {
+    renderData: {
+        objectMesh: null,
+        vertexBuffer: null,
+        indexBuffer: null
+    },
+    rotation: Math.PI * 0.25, // start at 45 deg angle
 };
+
+function renderUpdate() {
+    // camera
+    const fov = 45 * Math.PI / 180;
+    const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+    const near = 0.1;
+    const far = 100.0;
+    const projectionMatrix = mat4.create();
+    mat4.perspective(projectionMatrix, fov, aspect, near, far);
+
+    const cameraPos = vec3.fromValues(0, 8.0, -10.0);
+    const targetPos = vec3.fromValues(0.0, 0.0, 0.0);
+    const up = vec3.fromValues(0.0, 1.0, 0.0);
+    const viewMatrix = mat4.create();
+    mat4.lookAt(viewMatrix, cameraPos, targetPos, up);
+
+    const cameraMatrix = mat4.create();
+    mat4.multiply(cameraMatrix, projectionMatrix, viewMatrix);
+
+    // object
+    const objectMatrix = mat4.create();
+    // move so object is centered
+    mat4.rotateY(objectMatrix, objectMatrix, sessionData.rotation);
+
+    gl.useProgram(programInfo.program);
+
+    gl.uniformMatrix4fv(programInfo.uniforms.cameraMatrix, false, cameraMatrix);
+    gl.uniformMatrix4fv(programInfo.uniforms.objectMatrix, false, objectMatrix);
+    gl.uniform3fv(programInfo.uniforms.lightDirection, [0, -1, 0]);
+}
 
 // call this to render to the screen
 function render() {
@@ -124,44 +164,22 @@ function render() {
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     }
 
-    const fov = 45 * Math.PI / 180;
-    const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-    const near = 0.1;
-    const far = 100.0;
-    const projectionMatrix = mat4.create();
-    mat4.perspective(projectionMatrix, fov, aspect, near, far);
-
-    const cameraPos = vec3.fromValues(-8.0, 5.6, -8.0);
-    const targetPos = vec3.fromValues(0.0, 0.0, 0.0);
-    const up = vec3.fromValues(0.0, 1.0, 0.0);
-    const viewMatrix = mat4.create();
-    mat4.lookAt(viewMatrix, cameraPos, targetPos, up);
-
-    const cameraMatrix = mat4.create();
-    mat4.multiply(cameraMatrix, projectionMatrix, viewMatrix);
-
-    const objectMatrix = mat4.create();
-    // move so object is centered
-    mat4.translate(objectMatrix, objectMatrix, [WORLD_WIDTH * -0.5, 0.0, WORLD_WIDTH * -0.5]);
-
-    gl.useProgram(programInfo.program);
-
-    gl.uniformMatrix4fv(programInfo.uniforms.cameraMatrix, false, cameraMatrix);
-    gl.uniformMatrix4fv(programInfo.uniforms.objectMatrix, false, objectMatrix);
-    gl.uniform3fv(programInfo.uniforms.lightDirection, [0, -1, 0]);
+    renderUpdate();
 
     function loop() {
+        // clear old data
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clearDepth(1.0);
         gl.enable(gl.DEPTH_TEST);
         gl.depthFunc(gl.LEQUAL);
-
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+        // use this program
         gl.useProgram(programInfo.program);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, renderData.vertexBuffer);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, renderData.indexBuffer);
+        // bind data to be rendered
+        gl.bindBuffer(gl.ARRAY_BUFFER, sessionData.renderData.vertexBuffer);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sessionData.renderData.indexBuffer);
         gl.enableVertexAttribArray(programInfo.attributes.vertexPosition);
         gl.vertexAttribPointer(programInfo.attributes.vertexPosition, 3, gl.FLOAT, false, 36, 0);
         gl.enableVertexAttribArray(programInfo.attributes.colorPosition);
@@ -169,8 +187,8 @@ function render() {
         gl.enableVertexAttribArray(programInfo.attributes.normalPosition);
         gl.vertexAttribPointer(programInfo.attributes.normalPosition, 3, gl.FLOAT, false, 36, 24);
 
-        // gl.drawArrays(gl.TRIANGLES, 0, 6);
-        gl.drawElements(gl.TRIANGLES, renderData.objectMesh.indices.length, gl.UNSIGNED_SHORT, 0);
+        // draw it
+        gl.drawElements(gl.TRIANGLES, sessionData.renderData.objectMesh.indices.length, gl.UNSIGNED_SHORT, 0);
 
         // keep drawing every frame
         window.requestAnimationFrame(loop);
@@ -179,9 +197,3 @@ function render() {
     loop();
 }
 
-function setObjectMesh(mesh) {
-    renderData.objectMesh = mesh;
-
-    renderData.vertexBuffer = createVertexBuffer(mesh.vertices);
-    renderData.indexBuffer = createIndexBuffer(mesh.indices);
-}

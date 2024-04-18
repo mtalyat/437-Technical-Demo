@@ -7,7 +7,6 @@ const WORLD_SEA_LEVEL = 0.25;
 const OCTAVES = 2;
 const FREQUENCY_HEIGHT = 2.0;
 const FREQUENCY_MOISTURE = 1.0;
-const BLEND_COLORS = false;
 const BIOMES =
     [
         {
@@ -254,7 +253,7 @@ const BIOMES =
 
 // finds the biome based on the given values
 function findBiome(height, moisture) {
-    for (let biome of BIOMES){
+    for (let biome of BIOMES) {
         // check if height and moisture are part of this biome
         if (height >= biome.height.min && height <= biome.height.max && moisture >= biome.moisture.min && moisture <= biome.moisture.max) {
             // biome found
@@ -327,12 +326,12 @@ function getMoisture(x, y) {
 // gets the color at the position based on the height and moisture
 function getColor(height, moisture, x, y) {
     // if height below sea level, return water color, based on depth
-    if(height <= WORLD_SEA_LEVEL){
-        const depth = (1 -((WORLD_SEA_LEVEL - height) / WORLD_SEA_LEVEL)) * 0.5 + 0.5;
+    if (height <= WORLD_SEA_LEVEL) {
+        const depth = (1 - ((WORLD_SEA_LEVEL - height) / WORLD_SEA_LEVEL)) * 0.5 + 0.5;
         return {
-            r: 28/255*depth,
-            g: 30/255*depth,
-            b: 79/255*depth,
+            r: 28 / 255 * depth,
+            g: 30 / 255 * depth,
+            b: 79 / 255 * depth,
         }
     }
 
@@ -428,7 +427,7 @@ function generateMap() {
         return centroids;
     }
 
-    function generateHeight(x, y){
+    function generateHeight(x, y) {
         // get height and clamp it with sea level
         const height = GENERATOR.getHeight(x, y);
         return Math.max(WORLD_SEA_LEVEL, height);
@@ -495,7 +494,7 @@ function generateMap() {
         // set height for center and each point, if needed
         // center should not exist so just set it
         heights.set(center, generateHeight(center.x, center.y) * WORLD_HEIGHT);
-        
+
         const height = GENERATOR.getHeight(center.x, center.y);
         const moisture = GENERATOR.getMoisture(center.x, center.y);
 
@@ -514,52 +513,18 @@ function generateMap() {
 }
 
 function generateMesh(map) {
-    // take the polygon data and average out the color per each polygon per each point
-    const colors = new Map(); //  { value, count } pairs
-
-    function addColor(position, color) {
-        const key = `x${position.x}y${position.y}z${position.z}`
-        if (colors.has(key)) {
-            // add to existing
-            data = colors.get(key);
-            colors.set(key, {
-                color: {
-                    r: data.color.r + color.r,
-                    g: data.color.g + color.g,
-                    b: data.color.b + color.b
-                },
-                count: data.count + 1
-            });
-        } else {
-            // add new
-            colors.set(key, {
-                color: color,
-                count: 1
-            });
-        }
-    }
-
-    map.nodes.forEach((node) => {
-        // add points
-        node.points.forEach((point) => {
-            addColor(point, GENERATOR.getColor(node.height, node.moisture, node.center.x, node.center.y));
-        });
-    });
-
-    // average the colors based on the counts
-    colors.forEach((data) => {
-        data.color.r = data.color.r / data.count;
-        data.color.g = data.color.g / data.count;
-        data.color.b = data.color.b / data.count;
-    });
-
-    function getColor(position) {
-        return colors.get(`x${position.x}y${position.y}z${position.z}`).color;
-    }
-
     function getHeight(position) {
         const height = map.heights.get(position)
         return Math.max(WORLD_SEA_LEVEL, height);
+    }
+
+    // given 3 positions, calculates the normal vector
+    function calculateNormal(a, b, c) {
+        return {
+            x: 0,
+            y: 1,
+            z: 0
+        };
     }
 
     let index = 0;
@@ -568,30 +533,41 @@ function generateMesh(map) {
 
     // create the mesh from the polygons
     map.nodes.forEach((node) => {
-        // add center
-        vertices.push(node.center.x * WORLD_WIDTH, getHeight(node.center), node.center.y * WORLD_WIDTH);
+        const color = GENERATOR.getColor(node.height, node.moisture, node.center.x, node.center.y);
 
-        let color = GENERATOR.getColor(node.height, node.moisture, node.center.x, node.center.y);
-        vertices.push(color.r, color.g, color.b);
+        const center = {
+            x: node.center.x * WORLD_WIDTH,
+            y: getHeight(node.center),
+            z: node.center.y * WORLD_WIDTH
+        };
 
         // create mesh by triangulating the vertices
         for (let i = 0; i < node.points.length; i++) {
-            // add side
-            vertices.push(node.points[i].x * WORLD_WIDTH, getHeight(node.points[i]), node.points[i].y * WORLD_WIDTH);
-            if (BLEND_COLORS) {
-                color = getColor(node.points[i]);
-            }
+            const j = (i + 1) % node.points.length;
 
-            vertices.push(color.r, color.g, color.b);
+            // vertex positions
+            const position1 = {
+                x: node.points[i].x * WORLD_WIDTH,
+                y: getHeight(node.points[i]),
+                z: node.points[i].y * WORLD_WIDTH
+            }
+            const position2 = {
+                x: node.points[j].x * WORLD_WIDTH,
+                y: getHeight(node.points[j]),
+                z: node.points[j].y * WORLD_WIDTH
+            }
+            const normal = calculateNormal(center, position1, position2);
+
+            vertices.push(center.x, center.y, center.z, color.r, color.g, color.b, normal.x, normal.y, normal.z);
+            vertices.push(position1.x, position1.y, position1.z, color.r, color.g, color.b, normal.x, normal.y, normal.z);
+            vertices.push(position2.x, position2.y, position2.z, color.r, color.g, color.b, normal.x, normal.y, normal.z);
 
             // add indices for the triangle
             indices.push(index);
-            indices.push(index + 1 + i);
-            indices.push(index + 1 + (i + 1) % node.points.length);
+            indices.push(index + 1);
+            indices.push(index + 2);
+            index += 3;
         }
-
-        // increment the index
-        index += 1 + node.points.length;
     });
 
     return {

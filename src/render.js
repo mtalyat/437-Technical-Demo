@@ -4,23 +4,34 @@ const gl = canvas.getContext('webgl2');
 const vertexSource = `#version 300 es
 in vec4 aPosition;
 in vec4 aColor;
+in vec4 aNormal;
 uniform mat4 uObjectMatrix;
 uniform mat4 uCameraMatrix;
 out vec3 color;
+out vec3 normal;
 
 void main() {
     gl_Position = uCameraMatrix * uObjectMatrix * aPosition;
     color = aColor.xyz;
+    normal = aNormal.xyz;
 }
 `;
 
 const fragmentSource = `#version 300 es
 precision mediump float;
 in vec3 color;
+in vec3 normal;
 out vec4 outColor;
 
+uniform vec3 uLightDirection;
+
 void main() {
-    outColor = vec4(color, 1.0);
+    vec3 normalizedNormal = normalize(normal);
+    float diffuse = max(dot(normalizedNormal, -uLightDirection), 0.0);
+    vec3 lightColor = vec3(1.0, 1.0, 1.0);
+    vec3 objectColor = color;
+    vec3 diffuseLight = diffuse * lightColor * objectColor;
+    outColor = vec4(diffuseLight, 1.0);
 }
 `;
 
@@ -61,10 +72,12 @@ const programInfo = {
     attributes: {
         vertexPosition: gl.getAttribLocation(shaderProgram, 'aPosition'),
         colorPosition: gl.getAttribLocation(shaderProgram, 'aColor'),
+        normalPosition: gl.getAttribLocation(shaderProgram, 'aNormal'),
     },
     uniforms: {
         cameraMatrix: gl.getUniformLocation(shaderProgram, 'uCameraMatrix'),
-        objectMatrix: gl.getUniformLocation(shaderProgram, 'uObjectMatrix')
+        objectMatrix: gl.getUniformLocation(shaderProgram, 'uObjectMatrix'),
+        lightDirection: gl.getUniformLocation(shaderProgram, 'uLightDirection'),
     }
 };
 
@@ -142,13 +155,16 @@ function render() {
 
     gl.uniformMatrix4fv(programInfo.uniforms.cameraMatrix, false, cameraMatrix);
     gl.uniformMatrix4fv(programInfo.uniforms.objectMatrix, false, objectMatrix);
+    gl.uniform3fv(programInfo.uniforms.lightDirection, [0, -1, 0]);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, renderData.vertexBuffer);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, renderData.indexBuffer);
-    gl.vertexAttribPointer(programInfo.attributes.vertexPosition, 3, gl.FLOAT, false, 24, 0);
     gl.enableVertexAttribArray(programInfo.attributes.vertexPosition);
-    gl.vertexAttribPointer(programInfo.attributes.colorPosition, 3, gl.FLOAT, false, 24, 12);
+    gl.vertexAttribPointer(programInfo.attributes.vertexPosition, 3, gl.FLOAT, false, 36, 0);
     gl.enableVertexAttribArray(programInfo.attributes.colorPosition);
+    gl.vertexAttribPointer(programInfo.attributes.colorPosition, 3, gl.FLOAT, false, 36, 12);
+    gl.enableVertexAttribArray(programInfo.attributes.normalPosition);
+    gl.vertexAttribPointer(programInfo.attributes.normalPosition, 3, gl.FLOAT, false, 36, 24);
 
     // gl.drawArrays(gl.TRIANGLES, 0, 6);
     gl.drawElements(gl.TRIANGLES, renderData.objectMesh.indices.length, gl.UNSIGNED_SHORT, 0);

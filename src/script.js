@@ -71,6 +71,10 @@ heightFrequencyNumber.addEventListener('change', function(){
 
 fractalTypeDropdown.addEventListener('change', function(){
     sessionData.fractalType = this.value;
+    const disabled = sessionData.fractalType === 'None';
+    octavesNumber.disabled = disabled;
+    lacunarityNumber.disabled = disabled;
+    gainNumber.disabled = disabled;
     terrainUpdate();
 });
 
@@ -94,7 +98,7 @@ moistureFrequencyNumber.addEventListener('change', function(){
     terrainUpdate();
 });
 
-seaLevelSlider.addEventListener('input', function(){
+seaLevelSlider.addEventListener('change', function(){
     sessionData.seaLevel = Number(this.value);
     terrainUpdate();
 });

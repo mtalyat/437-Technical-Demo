@@ -4,6 +4,7 @@ const WORLD_WIDTH = 10.0;
 const WORLD_POINT_SCALE = WORLD_WIDTH / POINT_COUNT_AXIS;
 const WORLD_HEIGHT = 2.0;
 const FREQUENCY = 0.2;
+const BLEND_COLORS = false;
 
 // use a custom class to randomly generate numbers using a seed
 // Math.random() does not allow for a seed
@@ -199,10 +200,11 @@ function generateMesh(map)
     const colors = new Map(); //  { value, count } pairs
 
     function addColor(position, color){
-        if(colors.has(position)){
+        const key = `x${position.x}y${position.y}z${position.z}`
+        if(colors.has(key)){
             // add to existing
-            data = colors.get(position);
-            colors.set(position, {
+            data = colors.get(key);
+            colors.set(key, {
                 color: {
                     r: data.color.r + color.r,
                     g: data.color.g + color.g,
@@ -212,11 +214,15 @@ function generateMesh(map)
             });
         } else{
             // add new
-            colors.set(position, {
+            colors.set(key, {
                 color: color,
                 count: 1
             });
         }
+    }
+
+    function getColor(position){
+        return colors.get(`x${position.x}y${position.y}z${position.z}`).color;
     }
 
     map.nodes.forEach((node) => {
@@ -244,13 +250,21 @@ function generateMesh(map)
     map.nodes.forEach((node) => {
         // add center
         vertices.push(node.center.x * WORLD_WIDTH, map.heights.get(node.center), node.center.y * WORLD_WIDTH);
-        vertices.push(node.color.r, node.color.g, node.color.b);
+        let color= getColor(node.center);
+        console.log(color);
+        vertices.push(color.r, color.g, color.b);
 
         // create mesh by triangulating the vertices
         for(let i = 0; i < node.points.length; i++){
             // add side
             vertices.push(node.points[i].x * WORLD_WIDTH, map.heights.get(node.points[i]), node.points[i].y * WORLD_WIDTH);
-            vertices.push(node.color.r, node.color.g, node.color.b);
+            if(BLEND_COLORS){
+                color = getColor(node.points[i]);
+            } else{
+                color = node.color
+            }
+            
+            vertices.push(color.r, color.g, color.b);
 
             // add indices for the triangle
             indices.push(index);

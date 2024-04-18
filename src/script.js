@@ -121,39 +121,6 @@ function generateMap(seed = 1337) {
         ]);
     });
 
-    // list.forEach(function(item, index){
-    //     vertices.push(item.position.x, item.position.y, item.position.z);
-    //     vertices.push(item.color.r, item.color.g, item.color.b);
-    //     vertices.push(item.position.x - TRIANGLE_SIZE_HALF, item.position.y - TRIANGLE_SIZE, item.position.z);
-    //     vertices.push(item.color.r, item.color.g, item.color.b);
-    //     vertices.push(item.position.x + TRIANGLE_SIZE_HALF, item.position.y - TRIANGLE_SIZE, item.position.z);
-    //     vertices.push(item.color.r, item.color.g, item.color.b);
-
-    //     indices.push(index * 3 + 0);
-    //     indices.push(index * 3 + 1);
-    //     indices.push(index * 3 + 2);
-    // });
-
-    // // add all the vertices
-    // list.forEach(function(item, index, array){
-    //     vertices.push(item.position.x, item.position.y, item.position.z);
-    //     vertices.push(item.color.r, item.color.g, item.color.b);
-    // });
-    
-    // // add the indices, each set of 2 triangles should be [(x, y), (x, y + 1), (x + 1, y)], [(x + 1, y), (x, y + 1), (x + 1, y + 1)]
-    // for (let y = 0; y < POINT_COUNT_AXIS - 1; y++) {
-    //     for (let x = 0; x < POINT_COUNT_AXIS - 1; x++) {
-    //         // calculate indices
-    //         const i = y * POINT_COUNT_AXIS + x;
-    //         const ix = i + 1;
-    //         const iy = i + POINT_COUNT_AXIS;
-    //         const ixy = iy + 1;
-
-    //         // add indices to array
-    //         indices.push(i, iy, ix, ix, iy, ixy);
-    //     }
-    // }
-
     const width = 1;
     const height = 1;
 

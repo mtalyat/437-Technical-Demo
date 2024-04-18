@@ -3,7 +3,8 @@ const POINT_COUNT = POINT_COUNT_AXIS * POINT_COUNT_AXIS;
 const WORLD_WIDTH = 10.0;
 const WORLD_POINT_SCALE = WORLD_WIDTH / POINT_COUNT_AXIS;
 const WORLD_HEIGHT = 2.0;
-const FREQUENCY = 0.2;
+const WORLD_WATER_LEVEL = 0.5;
+const FREQUENCY = 2.0;
 const BLEND_COLORS = false;
 
 // use a custom class to randomly generate numbers using a seed
@@ -102,16 +103,18 @@ function generateMap() {
 
     // gets the height at the position
     function getHeight(noise, x, y) {
-        return (noise.GetNoise(x, y) * 0.5 + 0.5) * WORLD_HEIGHT;
+        const value = (noise.GetNoise(x, y) * 0.5 + 0.5) * WORLD_HEIGHT;
+        return value;
     }
 
     // gets the color at the position
     function getColor(noise, x, y) {
-        // const value = noise.GetNoise(x, y) * 0.5 + 0.5;
+        const value = noise.GetNoise(x, y) * 0.5 + 0.5;
+        console.log(value);
         return {
-            r: rng.random() * 0.9 + 0.1,
-            g: rng.random() * 0.9 + 0.1,
-            b: rng.random() * 0.9 + 0.1
+            r: value,
+            g: value,
+            b: value
         };
     }
     
@@ -166,7 +169,7 @@ function generateMap() {
                 y: y
             };
             points.push(point);
-            heights.set(point, getHeight(heightNoise, point.x * WORLD_WIDTH, point.y * WORLD_WIDTH));
+            heights.set(point, getHeight(heightNoise, point.x, point.y));
 
             // add to center
             center.x += x;
@@ -177,14 +180,12 @@ function generateMap() {
 
         // set height for center and each point, if needed
         // center should not exist so just set it
-        heights.set(center, getHeight(heightNoise, center.x * WORLD_WIDTH, center.y * WORLD_WIDTH));
-
-
+        heights.set(center, getHeight(heightNoise, center.x, center.y));
 
         nodes.push({
             points: points,
             center: center,
-            color: getColor(null, center.x, center.y)
+            color: getColor(heightNoise, center.x, center.y)
         });
     });
 
@@ -221,10 +222,6 @@ function generateMesh(map)
         }
     }
 
-    function getColor(position){
-        return colors.get(`x${position.x}y${position.y}z${position.z}`).color;
-    }
-
     map.nodes.forEach((node) => {
         // add center
         addColor(node.center, node.color);
@@ -242,6 +239,15 @@ function generateMesh(map)
         data.color.b = data.color.b / data.count;
     });
 
+    function getColor(position){
+        return colors.get(`x${position.x}y${position.y}z${position.z}`).color;
+    }
+
+    function getHeight(position){
+        const height = map.heights.get(position)
+        return Math.max(WORLD_WATER_LEVEL, height);
+    }
+
     let index = 0;
     const vertices = [];
     const indices = [];
@@ -249,15 +255,14 @@ function generateMesh(map)
     // create the mesh from the polygons
     map.nodes.forEach((node) => {
         // add center
-        vertices.push(node.center.x * WORLD_WIDTH, map.heights.get(node.center), node.center.y * WORLD_WIDTH);
+        vertices.push(node.center.x * WORLD_WIDTH, getHeight(node.center), node.center.y * WORLD_WIDTH);
         let color= getColor(node.center);
-        console.log(color);
         vertices.push(color.r, color.g, color.b);
 
         // create mesh by triangulating the vertices
         for(let i = 0; i < node.points.length; i++){
             // add side
-            vertices.push(node.points[i].x * WORLD_WIDTH, map.heights.get(node.points[i]), node.points[i].y * WORLD_WIDTH);
+            vertices.push(node.points[i].x * WORLD_WIDTH, getHeight(node.points[i]), node.points[i].y * WORLD_WIDTH);
             if(BLEND_COLORS){
                 color = getColor(node.points[i]);
             } else{

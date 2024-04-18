@@ -6,27 +6,27 @@ const seaLevelSlider = document.getElementById('seaLevelSlider');
 
 const sessionData = {
     // rendering data
-    rotation: rotationSlider.value,
+    rotation: Number(rotationSlider.value),
 
     // generation data
-    seed: seedNumber.value,
-    detail: detailSlider.value,
+    seed: Number(seedNumber.value),
+    detail: Number(detailSlider.value),
     noiseType: noiseTypeDropdown.value,
-    seaLevel: seaLevelSlider.value,
+    seaLevel: Number(seaLevelSlider.value),
 };
 
 rotationSlider.addEventListener('input', function(){
-    sessionData.rotation = this.value;
+    sessionData.rotation = Number(this.value);
     renderUpdate();
 });
 
 seedNumber.addEventListener('change', function(){
-    sessionData.seed = this.value;
+    sessionData.seed = Number(this.value);
     terrainUpdate();
 });
 
 detailSlider.addEventListener('change', function(){
-    sessionData.detail = this.value;
+    sessionData.detail = Number(this.value);
     terrainUpdate();
 });
 
@@ -36,7 +36,7 @@ noiseTypeDropdown.addEventListener('change', function(){
 });
 
 seaLevelSlider.addEventListener('input', function(){
-    sessionData.seaLevel = this.value;
+    sessionData.seaLevel = Number(this.value);
     terrainUpdate();
 });
 

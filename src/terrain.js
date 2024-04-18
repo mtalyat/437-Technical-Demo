@@ -305,9 +305,16 @@ function getHeightIsland(noise,x, y) {
     const distanceX = x - 0.5;
     const distanceY = y - 0.5;
     const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+    const normalizedDistance = (1.0 - (distance / Math.sqrt(0.25)));
 
-    // max distance to corner is always distance from (0, 0) to (0.5, 0.5), which is sqrt(0.5) simplified
-    return height * (1.0 - (distance / Math.sqrt(0.5)));
+    // get max and min range based on the distance to the center
+    // when in center, min is water level
+    // when on edge, max is water level
+    const min = sessionData.seaLevel * normalizedDistance;
+    const max = (1 - sessionData.seaLevel) * normalizedDistance + sessionData.seaLevel;
+
+    // now move to in that range
+    return height * (max - min) + min;
 }
 
 function getMoisture(noise,x, y) {

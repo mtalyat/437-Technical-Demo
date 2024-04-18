@@ -31,6 +31,12 @@
                 <option value="OpenSimplex2S">OpenSimplex2S</option>
             </select>
             <h3>Height</h3>
+            <label for="heightFunctionDropdown">Height Function:</label>
+            <select id="heightFunctionDropdown">
+                <option value="getHeight" selected>Normal</option>
+                <option value="getHeightIsland">Island</option>
+            </select>
+            <br>
             <label for="heightFrequencyNumber">Frequency:</label>
             <input type="number" id="heightFrequencyNumber" min="0" max="100" step="0.5" value="2">
             <br>

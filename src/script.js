@@ -5,6 +5,7 @@ const seedNumber = document.getElementById('seedNumber');
 const detailSlider = document.getElementById('detailSlider');
 const noiseTypeDropdown = document.getElementById('noiseTypeDropdown');
 //      height
+const heightFunctionDropdown = document.getElementById('heightFunctionDropdown');
 const heightFrequencyNumber = document.getElementById('heightFrequencyNumber');
 const fractalTypeDropdown = document.getElementById('fractalTypeDropdown');
 const octavesNumber = document.getElementById('octavesNumber');
@@ -23,7 +24,7 @@ const sessionData = {
     detail: Number(detailSlider.value),
     noiseType: noiseTypeDropdown.value,
     //      height
-    getHeightFunction: window['getHeightIsland'],
+    getHeightFunction: window[heightFunctionDropdown.value],
     heightFrequency: Number(heightFrequencyNumber.value),
     fractalType: fractalTypeDropdown.value,
     octaves: Number(octavesNumber.value),
@@ -55,6 +56,11 @@ detailSlider.addEventListener('change', function(){
 
 noiseTypeDropdown.addEventListener('change', function(){
     sessionData.noiseType = this.value;
+    terrainUpdate();
+});
+
+heightFunctionDropdown.addEventListener('change', function(){
+    sessionData.getHeightFunction = window[this.value];
     terrainUpdate();
 });
 

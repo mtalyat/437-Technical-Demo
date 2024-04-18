@@ -1,4 +1,5 @@
 // rendering
+const spinCheckbox = document.getElementById('spinCheckbox');
 const rotationSlider = document.getElementById('rotationSlider');
 const useLightingCheckbox = document.getElementById('useLightingCheckbox');
 // generation
@@ -19,8 +20,9 @@ const seaLevelSlider = document.getElementById('seaLevelSlider');
 
 const sessionData = {
     // rendering data
+    spin: Boolean(spinCheckbox.checked),
     rotation: Number(rotationSlider.value),
-    useLighting: Boolean(useLightingCheckbox.value),
+    useLighting: Boolean(useLightingCheckbox.checked),
 
     // generation data
     seed: Number(seedNumber.value),
@@ -40,47 +42,52 @@ const sessionData = {
     seaLevel: Number(seaLevelSlider.value),
 };
 
-rotationSlider.addEventListener('input', function(){
+spinCheckbox.addEventListener('change', function () {
+    sessionData.spin = Boolean(this.checked);
+    rotationSlider.disabled = sessionData.spin;
+});
+
+rotationSlider.addEventListener('input', function () {
     sessionData.rotation = Number(this.value);
     renderUpdate();
 });
 
-useLightingCheckbox.addEventListener('input', function(){
+useLightingCheckbox.addEventListener('change', function () {
     sessionData.useLighting = Boolean(this.checked);
     renderUpdate();
 });
 
-seedNumber.addEventListener('change', function(){
+seedNumber.addEventListener('change', function () {
     sessionData.seed = Number(this.value);
     terrainUpdate();
 });
 
-detailSlider.addEventListener('change', function(){
+detailSlider.addEventListener('change', function () {
     sessionData.detail = Number(this.value);
     terrainUpdate();
 });
 
-colorFunctionDropdown.addEventListener('change', function(){
+colorFunctionDropdown.addEventListener('change', function () {
     sessionData.getColorFunction = window[this.value];
     terrainUpdate();
 });
 
-noiseTypeDropdown.addEventListener('change', function(){
+noiseTypeDropdown.addEventListener('change', function () {
     sessionData.noiseType = this.value;
     terrainUpdate();
 });
 
-heightFunctionDropdown.addEventListener('change', function(){
+heightFunctionDropdown.addEventListener('change', function () {
     sessionData.getHeightFunction = window[this.value];
     terrainUpdate();
 });
 
-heightFrequencyNumber.addEventListener('change', function(){
+heightFrequencyNumber.addEventListener('change', function () {
     sessionData.heightFrequency = Number(this.value);
     terrainUpdate();
 });
 
-fractalTypeDropdown.addEventListener('change', function(){
+fractalTypeDropdown.addEventListener('change', function () {
     sessionData.fractalType = this.value;
     const disabled = sessionData.fractalType === 'None';
     octavesNumber.disabled = disabled;
@@ -89,47 +96,88 @@ fractalTypeDropdown.addEventListener('change', function(){
     terrainUpdate();
 });
 
-octavesNumber.addEventListener('change', function(){
+octavesNumber.addEventListener('change', function () {
     sessionData.octaves = Number(this.value);
     terrainUpdate();
 });
 
-lacunarityNumber.addEventListener('change', function(){
+lacunarityNumber.addEventListener('change', function () {
     sessionData.lacunarity = Number(this.value);
     terrainUpdate();
 });
 
-gainNumber.addEventListener('change', function(){
+gainNumber.addEventListener('change', function () {
     sessionData.gain = Number(this.value);
     terrainUpdate();
 });
 
-moistureFrequencyNumber.addEventListener('change', function(){
+moistureFrequencyNumber.addEventListener('change', function () {
     sessionData.moistureFrequency = Number(this.value);
     terrainUpdate();
 });
 
-seaLevelSlider.addEventListener('change', function(){
+seaLevelSlider.addEventListener('change', function () {
     sessionData.seaLevel = Number(this.value);
     terrainUpdate();
 });
 
-function terrainUpdate(){
-        // generate the map data
-        const map = generateMap();
+function terrainUpdate() {
+    // generate the map data
+    const map = generateMap();
 
-        // turn it into a mesh
-        const mesh = generateMesh(map);
-    
-        // render the mesh
-        setRenderObjectMesh(mesh);
+    // turn it into a mesh
+    const mesh = generateMesh(map);
+
+    // render the mesh
+    setRenderObjectMesh(mesh);
 }
 
 function main() {
+    // resize canvas so the image is clear
+    updateCanvas();
+
+    // update values
     terrainUpdate();
     renderUpdate();
 
-    startRendering();
+    let lastTime;
+
+    function loop(time) {
+        // if time invalid, skip frame
+        if (time === undefined) {
+            window.requestAnimationFrame(loop);
+            return;
+        }
+
+        // get delta time for animations
+        if (!lastTime) lastTime = time;
+        const deltaTime = (time / lastTime) / 1000; // seconds
+        lastTime = time;
+        
+        // if animating, update
+        let update = false;
+
+        if (sessionData.spin) {
+            // add to rotate and update
+            sessionData.rotation += 45 * deltaTime;
+
+            // update slider
+            rotationSlider.value = sessionData.rotation;
+
+            update = true;
+        }
+
+        if (update) {
+            renderUpdate();
+        }
+
+        render();
+
+        // keep drawing every frame
+        window.requestAnimationFrame(loop);
+    }
+
+    loop();
 }
 
 main();

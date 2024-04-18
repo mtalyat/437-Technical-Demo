@@ -162,42 +162,36 @@ function renderUpdate() {
     gl.uniform1i(programInfo.uniforms.enableLighting, sessionData.useLighting ? 1 : 0);
 }
 
-// call this to render to the screen
-function startRendering() {
+function updateCanvas() {
     // resize the canvas to the display size (if necessary)
     if (resizeCanvasToDisplaySize(gl.canvas)) {
         // adjust WebGL viewport to new canvas size
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     }
+}
 
-    function loop() {
-        // clear old data
-        gl.clearColor(0.0, 0.0, 0.0, 1.0);
-        gl.clearDepth(1.0);
-        gl.enable(gl.DEPTH_TEST);
-        gl.depthFunc(gl.LEQUAL);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+function render() {
+    // clear old data
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clearDepth(1.0);
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LEQUAL);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        // use this program
-        gl.useProgram(programInfo.program);
+    // use this program
+    gl.useProgram(programInfo.program);
 
-        // bind data to be rendered
-        gl.bindBuffer(gl.ARRAY_BUFFER, renderData.vertexBuffer);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, renderData.indexBuffer);
-        gl.enableVertexAttribArray(programInfo.attributes.vertexPosition);
-        gl.vertexAttribPointer(programInfo.attributes.vertexPosition, 3, gl.FLOAT, false, 36, 0);
-        gl.enableVertexAttribArray(programInfo.attributes.colorPosition);
-        gl.vertexAttribPointer(programInfo.attributes.colorPosition, 3, gl.FLOAT, false, 36, 12);
-        gl.enableVertexAttribArray(programInfo.attributes.normalPosition);
-        gl.vertexAttribPointer(programInfo.attributes.normalPosition, 3, gl.FLOAT, false, 36, 24);
+    // bind data to be rendered
+    gl.bindBuffer(gl.ARRAY_BUFFER, renderData.vertexBuffer);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, renderData.indexBuffer);
+    gl.enableVertexAttribArray(programInfo.attributes.vertexPosition);
+    gl.vertexAttribPointer(programInfo.attributes.vertexPosition, 3, gl.FLOAT, false, 36, 0);
+    gl.enableVertexAttribArray(programInfo.attributes.colorPosition);
+    gl.vertexAttribPointer(programInfo.attributes.colorPosition, 3, gl.FLOAT, false, 36, 12);
+    gl.enableVertexAttribArray(programInfo.attributes.normalPosition);
+    gl.vertexAttribPointer(programInfo.attributes.normalPosition, 3, gl.FLOAT, false, 36, 24);
 
-        // draw it
-        gl.drawElements(gl.TRIANGLES, renderData.objectMesh.indices.length, gl.UNSIGNED_INT, 0);
-
-        // keep drawing every frame
-        window.requestAnimationFrame(loop);
-    }
-
-    loop();
+    // draw it
+    gl.drawElements(gl.TRIANGLES, renderData.objectMesh.indices.length, gl.UNSIGNED_INT, 0);
 }
 

@@ -33,7 +33,7 @@ void main() {
     } else
     {
         vec3 normalizedNormal = normalize(normal);
-        float diffuse = max(dot(normalizedNormal, -uLightDirection), 0.0);
+        float diffuse = max(dot(normalizedNormal, -normalize(uLightDirection)), 0.0);
         vec3 lightColor = vec3(1.0, 1.0, 1.0);
         vec3 objectColor = color;
         vec3 diffuseLight = diffuse * lightColor * objectColor;
@@ -158,7 +158,7 @@ function renderUpdate() {
 
     gl.uniformMatrix4fv(programInfo.uniforms.cameraMatrix, false, cameraMatrix);
     gl.uniformMatrix4fv(programInfo.uniforms.objectMatrix, false, objectMatrix);
-    gl.uniform3fv(programInfo.uniforms.lightDirection, [0, -1, 0]);
+    gl.uniform3fv(programInfo.uniforms.lightDirection, [0, -1, -0.4]);
     gl.uniform1i(programInfo.uniforms.enableLighting, sessionData.useLighting ? 1 : 0);
 }
 

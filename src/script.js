@@ -1,9 +1,9 @@
-const POINT_COUNT_AXIS = 10;
+const POINT_COUNT_AXIS = 50;
 const POINT_COUNT = POINT_COUNT_AXIS * POINT_COUNT_AXIS;
 const WORLD_WIDTH = 10.0;
 const WORLD_POINT_SCALE = WORLD_WIDTH / POINT_COUNT_AXIS;
 const WORLD_HEIGHT = 2.0;
-const FREQUENCY = 2.0 / POINT_COUNT_AXIS; // divide by count to keep consistent regardless of count value
+const FREQUENCY = 0.2;
 
 // use a custom class to randomly generate numbers using a seed
 // Math.random() does not allow for a seed
@@ -21,27 +21,14 @@ class RandomNumberGenerator {
     }
 }
 
-// could do a random seed with Math.random()
+// could do a random seed by using Math.random() here
 const SEED = 1337;
 const rng = new RandomNumberGenerator(SEED);
-
-// gets the height at the position
-function getHeight(noise, x, y) {
-    return noise.GetNoise(x, y) * 0.5 + 0.5;
-}
-
-// gets the color at the position
-function getColor(noise, x, y) {
-    // const value = noise.GetNoise(x, y) * 0.5 + 0.5;
-    return {
-        r: rng.random() * 0.9 + 0.1,
-        g: rng.random() * 0.9 + 0.1,
-        b: rng.random() * 0.9 + 0.1
-    };
-}
+const heightNoise = new FastNoiseLite(SEED);
+heightNoise.SetFrequency(FREQUENCY);
 
 // generates a position and color data for each point on the map
-function generateMap(seed = 1337) {
+function generateMap() {
     function generateRandomPoints(numPoints) {
         let points = [];
         for (let i = 0; i < numPoints; i++) {
@@ -111,11 +98,26 @@ function generateMap(seed = 1337) {
         }
         return centroids;
     }
+
+    // gets the height at the position
+    function getHeight(noise, x, y) {
+        return (noise.GetNoise(x, y) * 0.5 + 0.5) * WORLD_HEIGHT;
+    }
+
+    // gets the color at the position
+    function getColor(noise, x, y) {
+        // const value = noise.GetNoise(x, y) * 0.5 + 0.5;
+        return {
+            r: rng.random() * 0.9 + 0.1,
+            g: rng.random() * 0.9 + 0.1,
+            b: rng.random() * 0.9 + 0.1
+        };
+    }
     
     const points = generateRandomPoints(POINT_COUNT);
     const centroids = lloydsAlgorithm(points, 1.0 / POINT_COUNT_AXIS, 2);
     const polygonCenters = [];
-    centroids.forEach((item, index) => {
+    centroids.forEach((item) => {
         polygonCenters.push([
             item.x, item.y
         ]);
@@ -132,9 +134,10 @@ function generateMap(seed = 1337) {
     const polygons = polygonCenters.map((_, i) => voronoi.cellPolygon(i));
 
     const nodes = [];
+    const heights = new Map();
 
     // create the mesh from the polygons
-    polygons.forEach((polygon, polygonIndex) => {
+    polygons.forEach((polygon) => {
         // skip if not a polygon
         if(!polygon)
         {
@@ -150,35 +153,89 @@ function generateMap(seed = 1337) {
         }
 
         // find center
-        let centerX = 0, centerY = 0;
+        let center = {
+            x: 0,
+            y: 0
+        };
+        const points = [];
         polygon.forEach(([x, y]) => {
-            centerX += x;
-            centerY += y;
-        });
-        centerX /= polygon.length;
-        centerY /= polygon.length;
+            // create point
+            const point = {
+                x: x,
+                y: y
+            };
+            points.push(point);
+            heights.set(point, getHeight(heightNoise, point.x * WORLD_WIDTH, point.y * WORLD_WIDTH));
 
-        // get color
-        const color = getColor(null, centerX, centerY);
+            // add to center
+            center.x += x;
+            center.y += y;
+        });
+        center.x /= polygon.length;
+        center.y /= polygon.length;
+
+        // set height for center and each point, if needed
+        // center should not exist so just set it
+        heights.set(center, getHeight(heightNoise, center.x * WORLD_WIDTH, center.y * WORLD_WIDTH));
+
+
 
         nodes.push({
-            points: polygon,
-            center: {
-                x: centerX,
-                y: centerY
-            },
-            color: color
+            points: points,
+            center: center,
+            color: getColor(null, center.x, center.y)
         });
     });
 
     return {
-        nodes: nodes
+        nodes: nodes,
+        heights: heights
     };
 }
 
 function generateMesh(map)
 {
-    // turn it into a mesh
+    // take the polygon data and average out the color per each polygon per each point
+    const colors = new Map(); //  { value, count } pairs
+
+    function addColor(position, color){
+        if(colors.has(position)){
+            // add to existing
+            data = colors.get(position);
+            colors.set(position, {
+                color: {
+                    r: data.color.r + color.r,
+                    g: data.color.g + color.g,
+                    b: data.color.b + color.b
+                },
+                count: data.count + 1
+            });
+        } else{
+            // add new
+            colors.set(position, {
+                color: color,
+                count: 1
+            });
+        }
+    }
+
+    map.nodes.forEach((node) => {
+        // add center
+        addColor(node.center, node.color);
+
+        // add points
+        node.points.forEach((point) => {
+            addColor(point, node.color);
+        });
+    });
+    
+    // average the colors based on the counts
+    colors.forEach((data) => {
+        data.color.r = data.color.r / data.count;
+        data.color.g = data.color.g / data.count;
+        data.color.b = data.color.b / data.count;
+    });
+
     let index = 0;
     const vertices = [];
     const indices = [];
@@ -186,13 +243,13 @@ function generateMesh(map)
     // create the mesh from the polygons
     map.nodes.forEach((node) => {
         // add center
-        vertices.push(node.center.x * WORLD_WIDTH, node.center.y * WORLD_WIDTH, 0.0);
+        vertices.push(node.center.x * WORLD_WIDTH, map.heights.get(node.center), node.center.y * WORLD_WIDTH);
         vertices.push(node.color.r, node.color.g, node.color.b);
 
         // create mesh by triangulating the vertices
         for(let i = 0; i < node.points.length; i++){
             // add side
-            vertices.push(node.points[i][0] * WORLD_WIDTH, node.points[i][1] * WORLD_WIDTH, 0.0);
+            vertices.push(node.points[i].x * WORLD_WIDTH, map.heights.get(node.points[i]), node.points[i].y * WORLD_WIDTH);
             vertices.push(node.color.r, node.color.g, node.color.b);
 
             // add indices for the triangle
@@ -211,8 +268,14 @@ function generateMesh(map)
     };
 }
 
-const map = generateMap(Math.floor(Math.random() * 10001));
+// generate the map data
+const map = generateMap();
+
+// turn it into a mesh
 const mesh = generateMesh(map);
+
+// set the mesh to render
 setObjectMesh(mesh);
 
+// render it
 render();

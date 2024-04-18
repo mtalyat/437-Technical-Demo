@@ -2,6 +2,10 @@ const rotationSlider = document.getElementById('rotationSlider');
 const seedNumber = document.getElementById('seedNumber');
 const detailSlider = document.getElementById('detailSlider');
 const noiseTypeDropdown = document.getElementById('noiseTypeDropdown');
+const fractalTypeDropdown = document.getElementById('fractalTypeDropdown');
+const octavesNumber = document.getElementById('octavesNumber');
+const lacunarityNumber = document.getElementById('lacunarityNumber');
+const gainNumber = document.getElementById('gainNumber');
 const seaLevelSlider = document.getElementById('seaLevelSlider');
 
 const sessionData = {
@@ -12,6 +16,10 @@ const sessionData = {
     seed: Number(seedNumber.value),
     detail: Number(detailSlider.value),
     noiseType: noiseTypeDropdown.value,
+    fractalType: fractalTypeDropdown.value,
+    octaves: Number(octavesNumber.value),
+    lacunarity: Number(lacunarityNumber.value),
+    gain: Number(gainNumber.value),
     seaLevel: Number(seaLevelSlider.value),
 };
 
@@ -32,6 +40,26 @@ detailSlider.addEventListener('change', function(){
 
 noiseTypeDropdown.addEventListener('change', function(){
     sessionData.noiseType = this.value;
+    terrainUpdate();
+});
+
+fractalTypeDropdown.addEventListener('change', function(){
+    sessionData.fractalType = this.value;
+    terrainUpdate();
+});
+
+octavesNumber.addEventListener('change', function(){
+    sessionData.octaves = Number(this.value);
+    terrainUpdate();
+});
+
+lacunarityNumber.addEventListener('change', function(){
+    sessionData.lacunarity = Number(this.value);
+    terrainUpdate();
+});
+
+gainNumber.addEventListener('change', function(){
+    sessionData.gain = Number(this.value);
     terrainUpdate();
 });
 

@@ -1,7 +1,6 @@
 const WORLD_WIDTH = 10.0;
 const WORLD_WIDTH_HALF = WORLD_WIDTH * 0.5;
 const WORLD_HEIGHT = 2.0;
-const OCTAVES = 2;
 const FREQUENCY_HEIGHT = 2.0;
 const FREQUENCY_MOISTURE = 1.0;
 const BIOMES =
@@ -279,26 +278,12 @@ class RandomNumberGenerator {
     }
 }
 
-
-
 // gets the height at the position
 function getHeight(noise, x, y) {
-    let value = 0;
-    let sum = 0;
-
-    for (let i = 0; i < OCTAVES; i++) {
-        const j = 1 << i;
-        const n = noise.GetNoise(x * j, y * j);
-        const amp = 1.0 / (i + 1);
-        sum += amp;
-        value += amp * n;
-    }
-
-    if (sum > 0) value /= sum;
-    return value * 0.5 + 0.5; // get between 0 and 1
+    return noise.GetNoise(x, y) * 0.5 + 0.5; // get between 0 and 1
 }
 
-function getHeightIsland(noise,x, y) {
+function getHeightIsland(noise, x, y) {
     const height = getHeight(noise, x, y);
 
     // scale based on distance to center
@@ -317,7 +302,7 @@ function getHeightIsland(noise,x, y) {
     return height * (max - min) + min;
 }
 
-function getMoisture(noise,x, y) {
+function getMoisture(noise, x, y) {
     return noise.GetNoise(x, y) * 0.5 + 0.5;
 }
 
@@ -356,21 +341,16 @@ const GENERATOR = {
 // generates a position and color data for each point on the map
 function generateMap() {
     const rng = new RandomNumberGenerator(sessionData.seed);
-
-    let noiseType = FastNoiseLite.NoiseType.Perlin;
-
-    if(sessionData.noiseType === 'OpenSimplex2'){
-        noiseType = FastNoiseLite.NoiseType.OpenSimplex2;
-    } else if(sessionData.noiseType === 'OpenSimplex2S'){
-        noiseType = FastNoiseLite.NoiseType.OpenSimplex2S;
-    }
-
-const heightNoise = new FastNoiseLite(sessionData.seed);
-heightNoise.SetNoiseType(noiseType);
-heightNoise.SetFrequency(FREQUENCY_HEIGHT);
-const moistureNoise = new FastNoiseLite(sessionData.seed);
-moistureNoise.SetNoiseType(noiseType);
-moistureNoise.SetFrequency(FREQUENCY_MOISTURE);
+    const heightNoise = new FastNoiseLite(sessionData.seed);
+    heightNoise.SetNoiseType(sessionData.noiseType);
+    heightNoise.SetFrequency(FREQUENCY_HEIGHT);
+    heightNoise.SetFractalType(sessionData.fractalType);
+    heightNoise.SetFractalOctaves(sessionData.octaves);
+    heightNoise.SetFractalLacunarity(sessionData.lacunarity);
+    heightNoise.SetFractalGain(sessionData.gain);
+    const moistureNoise = new FastNoiseLite(sessionData.seed);
+    moistureNoise.SetNoiseType(sessionData.noiseType);
+    moistureNoise.SetFrequency(FREQUENCY_MOISTURE);
 
     function generateRandomPoints(numPoints) {
         let points = [];

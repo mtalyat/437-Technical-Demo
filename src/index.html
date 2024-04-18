@@ -19,7 +19,7 @@
             <hr>
             <h2>Generation</h2>
             <label for="seedNumber">Seed:</label>
-            <input type="number" id="seedNumber" name="myNumber" min="0" max="1000000" step="1" value="1337">
+            <input type="number" id="seedNumber" min="0" max="1000000" step="1" value="1337">
             <br>
             <label for="detailSlider">Detail:</label>
             <input type="range" id="detailSlider" min="5" max="100" step="5" value="50">
@@ -30,6 +30,21 @@
                 <option value="OpenSimplex2" selected>OpenSimplex2</option> 
                 <option value="OpenSimplex2S">OpenSimplex2S</option>
             </select>
+            <br>
+            <label for="fractalTypeDropdown">Noise Type:</label>
+            <select id="fractalTypeDropdown">
+                <option value="None" selected>None</option>
+                <option value="FBm">FBm</option>
+            </select>
+            <br>
+            <label for="octavesNumber">Octaves:</label>
+            <input type="number" id="octavesNumber" min="1" max="10" step="1" value="3">
+            <br>
+            <label for="lacunarityNumber">Lacunarity:</label>
+            <input type="number" id="lacunarityNumber" min="0" max="10" step="0.1" value="2.0">
+            <br>
+            <label for="gainNumber">Gain:</label>
+            <input type="number" id="gainNumber" min="0" max="10" step="0.1" value="0.5">
             <h3>Height</h3>
             <br>
             <h3>Moisture</h3>

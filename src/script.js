@@ -169,7 +169,7 @@ function main() {
             sessionData.rotation += 45 * deltaTime;
 
             // update slider
-            rotationSlider.value = sessionData.rotation;
+            rotationSlider.value = sessionData.rotation % 360;
 
             update = true;
         }

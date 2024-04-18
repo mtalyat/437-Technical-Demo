@@ -1,11 +1,17 @@
+// rendering
 const rotationSlider = document.getElementById('rotationSlider');
+// generation
 const seedNumber = document.getElementById('seedNumber');
 const detailSlider = document.getElementById('detailSlider');
 const noiseTypeDropdown = document.getElementById('noiseTypeDropdown');
+//      height
+const heightFrequencyNumber = document.getElementById('heightFrequencyNumber');
 const fractalTypeDropdown = document.getElementById('fractalTypeDropdown');
 const octavesNumber = document.getElementById('octavesNumber');
 const lacunarityNumber = document.getElementById('lacunarityNumber');
 const gainNumber = document.getElementById('gainNumber');
+//      moisture
+const moistureFrequencyNumber = document.getElementById('moistureFrequencyNumber');
 const seaLevelSlider = document.getElementById('seaLevelSlider');
 
 const sessionData = {
@@ -16,10 +22,14 @@ const sessionData = {
     seed: Number(seedNumber.value),
     detail: Number(detailSlider.value),
     noiseType: noiseTypeDropdown.value,
+    //      height
+    heightFrequency: Number(heightFrequencyNumber.value),
     fractalType: fractalTypeDropdown.value,
     octaves: Number(octavesNumber.value),
     lacunarity: Number(lacunarityNumber.value),
     gain: Number(gainNumber.value),
+    //      moisture
+    moistureFrequency: Number(moistureFrequencyNumber.value),
     seaLevel: Number(seaLevelSlider.value),
 };
 
@@ -43,6 +53,11 @@ noiseTypeDropdown.addEventListener('change', function(){
     terrainUpdate();
 });
 
+heightFrequencyNumber.addEventListener('change', function(){
+    sessionData.heightFrequency = Number(this.value);
+    terrainUpdate();
+});
+
 fractalTypeDropdown.addEventListener('change', function(){
     sessionData.fractalType = this.value;
     terrainUpdate();
@@ -60,6 +75,11 @@ lacunarityNumber.addEventListener('change', function(){
 
 gainNumber.addEventListener('change', function(){
     sessionData.gain = Number(this.value);
+    terrainUpdate();
+});
+
+moistureFrequencyNumber.addEventListener('change', function(){
+    sessionData.moistureFrequency = Number(this.value);
     terrainUpdate();
 });
 

@@ -1,8 +1,6 @@
 const WORLD_WIDTH = 10.0;
 const WORLD_WIDTH_HALF = WORLD_WIDTH * 0.5;
 const WORLD_HEIGHT = 2.0;
-const FREQUENCY_HEIGHT = 2.0;
-const FREQUENCY_MOISTURE = 1.0;
 const BIOMES =
     [
         {
@@ -343,14 +341,14 @@ function generateMap() {
     const rng = new RandomNumberGenerator(sessionData.seed);
     const heightNoise = new FastNoiseLite(sessionData.seed);
     heightNoise.SetNoiseType(sessionData.noiseType);
-    heightNoise.SetFrequency(FREQUENCY_HEIGHT);
+    heightNoise.SetFrequency(sessionData.heightFrequency);
     heightNoise.SetFractalType(sessionData.fractalType);
     heightNoise.SetFractalOctaves(sessionData.octaves);
     heightNoise.SetFractalLacunarity(sessionData.lacunarity);
     heightNoise.SetFractalGain(sessionData.gain);
     const moistureNoise = new FastNoiseLite(sessionData.seed);
     moistureNoise.SetNoiseType(sessionData.noiseType);
-    moistureNoise.SetFrequency(FREQUENCY_MOISTURE);
+    moistureNoise.SetFrequency(sessionData.moistureFrequency);
 
     function generateRandomPoints(numPoints) {
         let points = [];

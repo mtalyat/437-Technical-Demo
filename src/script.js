@@ -520,11 +520,21 @@ function generateMesh(map) {
 
     // given 3 positions, calculates the normal vector
     function calculateNormal(a, b, c) {
-        return {
-            x: 0,
-            y: 1,
-            z: 0
-        };
+        let p1 = [a.x, a.y, a.z];
+        let p2 = [b.x, b.y, b.z];
+        let p3 = [c.x, c.y, c.z];
+
+        let v1 = [p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]];
+        let v2 = [p3[0] - p1[0], p3[1] - p1[1], p3[2] - p1[2]];
+
+        // cross product
+        let nx = v1[1] * v2[2] - v1[2] * v2[1];
+        let ny = v1[2] * v2[0] - v1[0] * v2[2];
+        let nz = v1[0] * v2[1] - v1[1] * v2[0];
+
+        // normalize the normal vector
+        let length = Math.sqrt(nx * nx + ny * ny + nz * nz);
+        return { x: nx / length, y: ny / length, z: nz / length };
     }
 
     let index = 0;
@@ -543,7 +553,8 @@ function generateMesh(map) {
 
         // create mesh by triangulating the vertices
         for (let i = 0; i < node.points.length; i++) {
-            const j = (i + 1) % node.points.length;
+            // get previous index to calculate normals
+            const j = (i - 1 + node.points.length) % node.points.length;
 
             // vertex positions
             const position1 = {

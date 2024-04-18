@@ -1,6 +1,3 @@
-const WORLD_WIDTH = 10.0;
-const WORLD_WIDTH_HALF = WORLD_WIDTH * 0.5;
-const WORLD_HEIGHT = 2.0;
 const BIOMES =
     [
         {
@@ -497,7 +494,7 @@ function generateMap() {
                 y: y
             };
             points.push(point);
-            heights.set(point, generateHeight(point.x, point.y) * WORLD_HEIGHT);
+            heights.set(point, generateHeight(point.x, point.y) * sessionData.height);
 
             // add to center
             center.x += x;
@@ -508,7 +505,7 @@ function generateMap() {
 
         // set height for center and each point, if needed
         // center should not exist so just set it
-        heights.set(center, generateHeight(center.x, center.y) * WORLD_HEIGHT);
+        heights.set(center, generateHeight(center.x, center.y) * sessionData.height);
 
         const height = sessionData.getHeightFunction(heightNoise, center.x, center.y);
         const moisture = sessionData.getMoistureFunction(moistureNoise, center.x, center.y);
@@ -563,9 +560,9 @@ function generateMesh(map) {
         const color = sessionData.getColorFunction(node.height, node.moisture, rng);
 
         const center = {
-            x: node.center.x * WORLD_WIDTH - WORLD_WIDTH_HALF,
+            x: (node.center.x - 0.5) * sessionData.width,
             y: getHeight(node.center),
-            z: node.center.y * WORLD_WIDTH - WORLD_WIDTH_HALF
+            z: (node.center.y - 0.5) * sessionData.width
         };
 
         // create mesh by triangulating the vertices
@@ -575,14 +572,14 @@ function generateMesh(map) {
 
             // vertex positions
             const position1 = {
-                x: node.points[i].x * WORLD_WIDTH - WORLD_WIDTH_HALF,
+                x: (node.points[i].x - 0.5) * sessionData.width,
                 y: getHeight(node.points[i]),
-                z: node.points[i].y * WORLD_WIDTH - WORLD_WIDTH_HALF
+                z: (node.points[i].y - 0.5) * sessionData.width
             }
             const position2 = {
-                x: node.points[j].x * WORLD_WIDTH - WORLD_WIDTH_HALF,
+                x: (node.points[j].x - 0.5) * sessionData.width,
                 y: getHeight(node.points[j]),
-                z: node.points[j].y * WORLD_WIDTH - WORLD_WIDTH_HALF
+                z: (node.points[j].y - 0.5) * sessionData.width
             }
             const normal = calculateNormal(center, position1, position2);
 

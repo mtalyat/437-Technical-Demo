@@ -2,6 +2,9 @@
 const spinCheckbox = document.getElementById('spinCheckbox');
 const rotationSlider = document.getElementById('rotationSlider');
 const useLightingCheckbox = document.getElementById('useLightingCheckbox');
+const widthNumber = document.getElementById('widthNumber');
+const heightNumber = document.getElementById('heightNumber');
+const scaleNumber = document.getElementById('scaleNumber');
 // generation
 const seedNumber = document.getElementById('seedNumber');
 const detailSlider = document.getElementById('detailSlider');
@@ -24,6 +27,10 @@ const sessionData = {
     spin: Boolean(spinCheckbox.checked),
     rotation: Number(rotationSlider.value),
     useLighting: Boolean(useLightingCheckbox.checked),
+    
+    width: Number(widthNumber.value),
+    height: Number(heightNumber.value),
+    scale: Number(scaleNumber.value),
 
     // generation data
     seed: Number(seedNumber.value),
@@ -56,6 +63,21 @@ rotationSlider.addEventListener('input', function () {
 
 useLightingCheckbox.addEventListener('change', function () {
     sessionData.useLighting = Boolean(this.checked);
+    renderUpdate();
+});
+
+widthNumber.addEventListener('change', function () {
+    sessionData.width = Number(this.value);
+    terrainUpdate();
+});
+
+heightNumber.addEventListener('change', function () {
+    sessionData.height = Number(this.value);
+    terrainUpdate();
+});
+
+scaleNumber.addEventListener('change', function () {
+    sessionData.scale = Number(this.value);
     renderUpdate();
 });
 

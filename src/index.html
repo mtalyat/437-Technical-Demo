@@ -23,6 +23,15 @@
             <label for="useLightingCheckbox">Lighting:</label>
             <input type="checkbox" id="useLightingCheckbox" checked>
             <hr>
+            <label for="widthNumber">Width:</label>
+            <input type="number" id="widthNumber" min="0" max="100" step="1" value="10">
+            <br>
+            <label for="heightNumber">Height:</label>
+            <input type="number" id="heightNumber" min="0" max="100" step="0.2" value="2">
+            <br>
+            <label for="scaleNumber">Scale:</label>
+            <input type="number" id="scaleNumber" min="0" max="100" step="0.1" value="1">
+            <hr>
             <h2>Generation</h2>
             <label for="seedNumber">Seed:</label>
             <input type="number" id="seedNumber" min="0" max="1000000" step="1" value="1337">
@@ -30,7 +39,7 @@
             <label for="detailSlider">Detail:</label>
             <input type="range" id="detailSlider" min="5" max="200" step="5" value="50">
             <br>
-            <label for="polygonModeDropdown">Color Function:</label>
+            <label for="polygonModeDropdown">Polygon Mode:</label>
             <select id="polygonModeDropdown">
                 <option value="0">Grid</option>
                 <option value="-1">Polygons</option>

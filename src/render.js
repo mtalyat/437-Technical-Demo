@@ -153,6 +153,8 @@ function renderUpdate() {
     const objectMatrix = mat4.create();
     // move so object is centered
     mat4.rotateY(objectMatrix, objectMatrix, (sessionData.rotation / 360) * Math.PI * 2);
+    // scale it appropriately
+    mat4.scale(objectMatrix, objectMatrix, vec3.fromValues(sessionData.scale, sessionData.scale, sessionData.scale));
 
     gl.useProgram(programInfo.program);
 

@@ -297,6 +297,29 @@ function getHeightIsland(noise, x, y) {
     return height * (max - min) + min;
 }
 
+// cylinder wrap on X axis
+function getHeightWrapX(noise, x, y) {
+    const pi2 = Math.PI * 2;
+    const angle = pi2 * x;
+    return noise.GetNoise(Math.cos(angle) / pi2, Math.sin(angle) / pi2, y);
+}
+
+// cylinder wrap on Y axis
+function getHeightWrapY(noise, x, y) {
+    const pi2 = Math.PI * 2;
+    const angle = pi2 * y;
+    return noise.GetNoise(Math.sin(angle) / pi2, Math.cos(angle) / pi2, x);
+}
+
+// torus wrapping (both X and Y)
+function getHeightWrap(noise, x, y) {
+    const pi2 = Math.PI * 2;
+    const angleX = pi2 * x;
+    const angleY = pi2 * y;
+    // FastNoiseLite has no 4D noise function, so use 2 2D functions to simulate 4D
+    return (noise.GetNoise(Math.cos(angleX) / pi2, Math.sin(angleX) / pi2) + noise.GetNoise(Math.cos(angleY) / pi2, Math.sin(angleY) / pi2)) * 0.5;
+}
+
 function getMoisture(noise, x, y) {
     return noise.GetNoise(x, y) * 0.5 + 0.5;
 }

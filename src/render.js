@@ -201,7 +201,7 @@ function render() {
     gl.vertexAttribPointer(programInfo.attributes.normalPosition, 3, gl.FLOAT, false, 36, 24);
 
     // draw it
-    draw();
+    renderCopy({ x: 0, y: 0, z: 0 });
 }
 
 function renderCopy(position) {

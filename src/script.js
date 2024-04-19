@@ -2,7 +2,8 @@
 const spinCheckbox = document.getElementById('spinCheckbox');
 const rotationSlider = document.getElementById('rotationSlider');
 const rotationSlider2 = document.getElementById('rotationSlider2');
-const tileModeDropdown = document.getElementById('tileModeDropdown');
+const tileModeXCheckbox = document.getElementById('tileModeXCheckbox');
+const tileModeYCheckbox = document.getElementById('tileModeYCheckbox');
 const useLightingCheckbox = document.getElementById('useLightingCheckbox');
 const widthNumber = document.getElementById('widthNumber');
 const heightNumber = document.getElementById('heightNumber');
@@ -30,8 +31,8 @@ const sessionData = {
     rotation: Number(rotationSlider.value),
     rotation2: Number(rotationSlider2.value),
     useLighting: Boolean(useLightingCheckbox.checked),
-    tileModeX: String(tileModeDropdown.value).includes('X'),
-    tileModeY: String(tileModeDropdown.value).includes('Y'),
+    tileModeX: Boolean(tileModeXCheckbox.checked),
+    tileModeY: Boolean(tileModeYCheckbox.checked),
 
     width: Number(widthNumber.value),
     height: Number(heightNumber.value),
@@ -71,10 +72,12 @@ rotationSlider2.addEventListener('input', function () {
     renderUpdate();
 });
 
-tileModeDropdown.addEventListener('change', function () {
-    const str = String(this.value);
-    sessionData.tileModeX = str.includes('X');
-    sessionData.tileModeY = str.includes('Y');
+tileModeXCheckbox.addEventListener('change', function () {
+    sessionData.tileModeX = this.checked;
+});
+
+tileModeYCheckbox.addEventListener('change', function () {
+    sessionData.tileModeY = this.checked;
 });
 
 useLightingCheckbox.addEventListener('change', function () {

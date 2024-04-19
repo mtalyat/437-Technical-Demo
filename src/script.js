@@ -11,10 +11,10 @@ const scaleNumber = document.getElementById('scaleNumber');
 const seedNumber = document.getElementById('seedNumber');
 const detailSlider = document.getElementById('detailSlider');
 const polygonModeDropdown = document.getElementById('polygonModeDropdown');
-const colorFunctionDropdown = document.getElementById('colorFunctionDropdown');
 const noiseTypeDropdown = document.getElementById('noiseTypeDropdown');
+const noiseFunctionDropdown = document.getElementById('noiseFunctionDropdown');
+const colorFunctionDropdown = document.getElementById('colorFunctionDropdown');
 //      height
-const heightFunctionDropdown = document.getElementById('heightFunctionDropdown');
 const heightFrequencyNumber = document.getElementById('heightFrequencyNumber');
 const fractalTypeDropdown = document.getElementById('fractalTypeDropdown');
 const octavesNumber = document.getElementById('octavesNumber');
@@ -41,17 +41,17 @@ const sessionData = {
     seed: Number(seedNumber.value),
     detail: Number(detailSlider.value),
     polygonIterations: Number(polygonModeDropdown.value),
-    getColorFunction: window[colorFunctionDropdown.value],
     noiseType: noiseTypeDropdown.value,
+    getHeightFunction: window[String(noiseFunctionDropdown.value).split('/')[0]],
+    getMoistureFunction: window[String(noiseFunctionDropdown.value).split('/')[1]],
+    getColorFunction: window[colorFunctionDropdown.value],
     //      height
-    getHeightFunction: window[heightFunctionDropdown.value],
     heightFrequency: Number(heightFrequencyNumber.value),
     fractalType: fractalTypeDropdown.value,
     octaves: Number(octavesNumber.value),
     lacunarity: Number(lacunarityNumber.value),
     gain: Number(gainNumber.value),
     //      moisture
-    getMoistureFunction: window['getNoise'],
     moistureFrequency: Number(moistureFrequencyNumber.value),
     seaLevel: Number(seaLevelSlider.value),
 };
@@ -122,8 +122,10 @@ noiseTypeDropdown.addEventListener('change', function () {
     terrainUpdate();
 });
 
-heightFunctionDropdown.addEventListener('change', function () {
-    sessionData.getHeightFunction = window[this.value];
+noiseFunctionDropdown.addEventListener('change', function () {
+    const strs = String(this.value).split('/')
+    sessionData.getHeightFunction = window[strs[0]];
+    sessionData.getMoistureFunction = window[strs[1]];
     terrainUpdate();
 });
 

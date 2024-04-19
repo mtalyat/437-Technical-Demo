@@ -17,8 +17,11 @@
             <label for="spinCheckbox">Spin:</label>
             <input type="checkbox" id="spinCheckbox" checked>
             <br>
-            <label for="rotationSlider">Rotation:</label>
-            <input type="range" id="rotationSlider" min="0" max="360" value="45" disabled>
+            <label for="rotationSlider">Rotation Y:</label>
+            <input type="range" id="rotationSlider" min="0" max="360" step="1" value="45" disabled>
+            <br>
+            <label for="rotationSlider2">Rotation X:</label>
+            <input type="range" id="rotationSlider2" min="0" max="89.99" step="1" value="45">
             <br>
             <label for="useLightingCheckbox">Lighting:</label>
             <input type="checkbox" id="useLightingCheckbox" checked>
@@ -27,7 +30,7 @@
             <input type="number" id="widthNumber" min="0" max="100" step="1" value="10">
             <br>
             <label for="heightNumber">Height:</label>
-            <input type="number" id="heightNumber" min="0" max="100" step="0.2" value="2">
+            <input type="number" id="heightNumber" min="0" max="100" step="1" value="4">
             <br>
             <label for="scaleNumber">Scale:</label>
             <input type="number" id="scaleNumber" min="0" max="100" step="0.1" value="1">
@@ -60,6 +63,7 @@
                 <option value="OpenSimplex2" selected>OpenSimplex2</option> 
                 <option value="OpenSimplex2S">OpenSimplex2S</option>
             </select>
+            <hr>
             <h3>Height</h3>
             <label for="heightFunctionDropdown">Height Function:</label>
             <select id="heightFunctionDropdown">
@@ -84,6 +88,7 @@
             <br>
             <label for="gainNumber">Gain:</label>
             <input type="number" id="gainNumber" min="0" max="10" step="0.1" value="0.5" disabled>
+            <hr>
             <h3>Moisture</h3>
             <label for="moistureFrequencyNumber">Frequency:</label>
             <input type="number" id="moistureFrequencyNumber" min="0" max="100" step="0.5" value="1">

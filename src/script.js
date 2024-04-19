@@ -1,6 +1,7 @@
 // rendering
 const spinCheckbox = document.getElementById('spinCheckbox');
 const rotationSlider = document.getElementById('rotationSlider');
+const rotationSlider2 = document.getElementById('rotationSlider2');
 const useLightingCheckbox = document.getElementById('useLightingCheckbox');
 const widthNumber = document.getElementById('widthNumber');
 const heightNumber = document.getElementById('heightNumber');
@@ -26,6 +27,7 @@ const sessionData = {
     // rendering data
     spin: Boolean(spinCheckbox.checked),
     rotation: Number(rotationSlider.value),
+    rotation2: Number(rotationSlider2.value),
     useLighting: Boolean(useLightingCheckbox.checked),
     
     width: Number(widthNumber.value),
@@ -58,6 +60,11 @@ spinCheckbox.addEventListener('change', function () {
 
 rotationSlider.addEventListener('input', function () {
     sessionData.rotation = Number(this.value);
+    renderUpdate();
+});
+
+rotationSlider2.addEventListener('input', function () {
+    sessionData.rotation2 = Number(this.value);
     renderUpdate();
 });
 

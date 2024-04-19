@@ -140,7 +140,10 @@ function renderUpdate() {
     const projectionMatrix = mat4.create();
     mat4.perspective(projectionMatrix, fov, aspect, near, far);
 
-    const cameraPos = vec3.fromValues(0, 8.0, -10.0);
+    // set camera pos based on rotation2 (Rotation X)
+    const orbitRotation = sessionData.rotation2 * Math.PI / 180;
+    const orbitDistance = 15;
+    const cameraPos = vec3.fromValues(0, Math.sin(orbitRotation) * orbitDistance, Math.cos(orbitRotation) * -orbitDistance);
     const targetPos = vec3.fromValues(0.0, 0.0, 0.0);
     const up = vec3.fromValues(0.0, 1.0, 0.0);
     const viewMatrix = mat4.create();

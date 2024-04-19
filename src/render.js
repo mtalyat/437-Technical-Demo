@@ -175,6 +175,10 @@ function updateCanvas() {
     }
 }
 
+function draw() {
+    gl.drawElements(gl.TRIANGLES, renderData.objectMesh.indices.length, gl.UNSIGNED_INT, 0);
+}
+
 function render() {
     // clear old data
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -197,6 +201,18 @@ function render() {
     gl.vertexAttribPointer(programInfo.attributes.normalPosition, 3, gl.FLOAT, false, 36, 24);
 
     // draw it
-    gl.drawElements(gl.TRIANGLES, renderData.objectMesh.indices.length, gl.UNSIGNED_INT, 0);
+    draw();
 }
 
+function renderCopy(position) {
+    const objectMatrix = mat4.create();
+    mat4.rotateY(objectMatrix, objectMatrix, (sessionData.rotation / 360) * Math.PI * 2);
+    mat4.scale(objectMatrix, objectMatrix, vec3.fromValues(sessionData.scale, sessionData.scale, sessionData.scale));
+    mat4.translate(objectMatrix, objectMatrix, vec3.fromValues(position.x, position.y, position.z));
+
+    gl.useProgram(programInfo.program);
+
+    gl.uniformMatrix4fv(programInfo.uniforms.objectMatrix, false, objectMatrix);
+
+    draw();
+}

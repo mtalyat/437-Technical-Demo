@@ -29,7 +29,8 @@ const sessionData = {
     rotation: Number(rotationSlider.value),
     rotation2: Number(rotationSlider2.value),
     useLighting: Boolean(useLightingCheckbox.checked),
-    
+    tileMode: String(heightFunctionDropdown.value).startsWith('getHeightWrap'),
+
     width: Number(widthNumber.value),
     height: Number(heightNumber.value),
     scale: Number(scaleNumber.value),
@@ -115,6 +116,7 @@ noiseTypeDropdown.addEventListener('change', function () {
 
 heightFunctionDropdown.addEventListener('change', function () {
     sessionData.getHeightFunction = window[this.value];
+    sessionData.tileMode = String(this.value).startsWith('getHeightWrap');
     terrainUpdate();
 });
 
@@ -189,7 +191,7 @@ function main() {
         if (!lastTime) lastTime = time;
         const deltaTime = (time / lastTime) / 1000; // seconds
         lastTime = time;
-        
+
         // if animating, update
         let update = false;
 
@@ -208,6 +210,22 @@ function main() {
         }
 
         render();
+
+        // if wraping, render more copies
+        if (sessionData.tileMode) {
+            for (let y = -1; y <= 1; y++) {
+                for (let x = -1; x <= 1; x++) {
+                    // skip center, it has already been rendered
+                    if (y === 0 && x === 0) continue;
+
+                    renderCopy({
+                        x: x * sessionData.width,
+                        y: 0.0,
+                        z: y * sessionData.width
+                    });
+                }
+            }
+        }
 
         // keep drawing every frame
         window.requestAnimationFrame(loop);

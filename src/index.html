@@ -23,6 +23,14 @@
             <label for="rotationSlider2">Rotation X:</label>
             <input type="range" id="rotationSlider2" min="0" max="90" step="1" value="45">
             <br>
+            <label for="tileModeDropdown">Tile Mode:</label>
+            <select id="tileModeDropdown">
+                <option value="" selected>None</option>
+                <option value="X">X</option>
+                <option value="Y">Y</option>
+                <option value="XY">Both</option>
+            </select>
+            <br>
             <label for="useLightingCheckbox">Lighting:</label>
             <input type="checkbox" id="useLightingCheckbox" checked>
             <hr>
@@ -67,11 +75,11 @@
             <h3>Height</h3>
             <label for="heightFunctionDropdown">Height Function:</label>
             <select id="heightFunctionDropdown">
-                <option value="getHeight" selected>Normal</option>
-                <option value="getHeightIsland">Island</option>
-                <option value="getHeightWrapX">Wrap X</option>
-                <option value="getHeightWrapY">Wrap Y</option>
-                <option value="getHeightWrap">Wrap Both</option>
+                <option value="getNoise" selected>Normal</option>
+                <option value="getNoiseIsland">Island</option>
+                <option value="getNoiseWrapX">Wrap X</option>
+                <option value="getNoiseWrapY">Wrap Y</option>
+                <option value="getNoiseWrap">Wrap Both</option>
             </select>
             <br>
             <label for="heightFrequencyNumber">Frequency:</label>

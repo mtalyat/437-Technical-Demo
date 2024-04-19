@@ -2,6 +2,7 @@
 const spinCheckbox = document.getElementById('spinCheckbox');
 const rotationSlider = document.getElementById('rotationSlider');
 const rotationSlider2 = document.getElementById('rotationSlider2');
+const tileModeDropdown = document.getElementById('tileModeDropdown');
 const useLightingCheckbox = document.getElementById('useLightingCheckbox');
 const widthNumber = document.getElementById('widthNumber');
 const heightNumber = document.getElementById('heightNumber');
@@ -29,7 +30,8 @@ const sessionData = {
     rotation: Number(rotationSlider.value),
     rotation2: Number(rotationSlider2.value),
     useLighting: Boolean(useLightingCheckbox.checked),
-    tileMode: String(heightFunctionDropdown.value).startsWith('getHeightWrap'),
+    tileModeX: String(tileModeDropdown.value).includes('X'),
+    tileModeY: String(tileModeDropdown.value).includes('Y'),
 
     width: Number(widthNumber.value),
     height: Number(heightNumber.value),
@@ -49,7 +51,7 @@ const sessionData = {
     lacunarity: Number(lacunarityNumber.value),
     gain: Number(gainNumber.value),
     //      moisture
-    getMoistureFunction: window['getMoisture'],
+    getMoistureFunction: window['getNoise'],
     moistureFrequency: Number(moistureFrequencyNumber.value),
     seaLevel: Number(seaLevelSlider.value),
 };
@@ -67,6 +69,12 @@ rotationSlider.addEventListener('input', function () {
 rotationSlider2.addEventListener('input', function () {
     sessionData.rotation2 = Number(this.value);
     renderUpdate();
+});
+
+tileModeDropdown.addEventListener('change', function () {
+    const str = String(this.value);
+    sessionData.tileModeX = str.includes('X');
+    sessionData.tileModeY = str.includes('Y');
 });
 
 useLightingCheckbox.addEventListener('change', function () {
@@ -116,7 +124,6 @@ noiseTypeDropdown.addEventListener('change', function () {
 
 heightFunctionDropdown.addEventListener('change', function () {
     sessionData.getHeightFunction = window[this.value];
-    sessionData.tileMode = String(this.value).startsWith('getHeightWrap');
     terrainUpdate();
 });
 
@@ -212,19 +219,19 @@ function main() {
         render();
 
         // if wraping, render more copies
-        if (sessionData.tileMode) {
-            for (let y = -1; y <= 1; y++) {
-                for (let x = -1; x <= 1; x++) {
-                    // skip center, it has already been rendered
-                    if (y === 0 && x === 0) continue;
-
-                    renderCopy({
-                        x: x * sessionData.width,
-                        y: 0.0,
-                        z: y * sessionData.width
-                    });
-                }
-            }
+        if (sessionData.tileModeX) {
+            renderCopy({ x: -1 * sessionData.width, y: 0, z: 0 });
+            renderCopy({ x: 1 * sessionData.width, y: 0, z: 0 });
+        }
+        if (sessionData.tileModeY) {
+            renderCopy({ x: 0, y: 0, z: -1 * sessionData.width });
+            renderCopy({ x: 0, y: 0, z: 1 * sessionData.width });
+        }
+        if (sessionData.tileModeX && sessionData.tileModeY) {
+            renderCopy({ x: 1 * sessionData.width, y: 0, z: 1 * sessionData.width });
+            renderCopy({ x: -1 * sessionData.width, y: 0, z: 1 * sessionData.width });
+            renderCopy({ x: 1 * sessionData.width, y: 0, z: -1 * sessionData.width });
+            renderCopy({ x: -1 * sessionData.width, y: 0, z: -1 * sessionData.width });
         }
 
         // keep drawing every frame

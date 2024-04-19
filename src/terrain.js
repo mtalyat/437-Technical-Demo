@@ -274,12 +274,12 @@ class RandomNumberGenerator {
 }
 
 // gets the height at the position
-function getHeight(noise, x, y) {
+function getNoise(noise, x, y) {
     return noise.GetNoise(x, y) * 0.5 + 0.5; // get between 0 and 1
 }
 
-function getHeightIsland(noise, x, y) {
-    const height = getHeight(noise, x, y);
+function getNoiseIsland(noise, x, y) {
+    const height = getNoise(noise, x, y);
 
     // scale based on distance to center
     const distanceX = x - 0.5;
@@ -298,30 +298,26 @@ function getHeightIsland(noise, x, y) {
 }
 
 // cylinder wrap on X axis
-function getHeightWrapX(noise, x, y) {
+function getNoiseWrapX(noise, x, y) {
     const pi2 = Math.PI * 2;
     const angle = pi2 * x;
-    return noise.GetNoise(Math.cos(angle) / pi2, Math.sin(angle) / pi2, y);
+    return noise.GetNoise(Math.cos(angle) / pi2, Math.sin(angle) / pi2, y) * 0.5 + 0.5;
 }
 
 // cylinder wrap on Y axis
-function getHeightWrapY(noise, x, y) {
+function getNoiseWrapY(noise, x, y) {
     const pi2 = Math.PI * 2;
     const angle = pi2 * y;
-    return noise.GetNoise(Math.sin(angle) / pi2, Math.cos(angle) / pi2, x);
+    return noise.GetNoise(Math.sin(angle) / pi2, Math.cos(angle) / pi2, x) * 0.5 + 0.5;
 }
 
 // torus wrapping (both X and Y)
-function getHeightWrap(noise, x, y) {
+function getNoiseWrap(noise, x, y) {
     const pi2 = Math.PI * 2;
     const angleX = pi2 * x;
     const angleY = pi2 * y;
     // FastNoiseLite has no 4D noise function, so use 2 2D functions to simulate 4D
-    return (noise.GetNoise(Math.cos(angleX) / pi2, Math.sin(angleX) / pi2) + noise.GetNoise(Math.cos(angleY) / pi2, Math.sin(angleY) / pi2)) * 0.5;
-}
-
-function getMoisture(noise, x, y) {
-    return noise.GetNoise(x, y) * 0.5 + 0.5;
+    return (noise.GetNoise(Math.cos(angleX) / pi2, Math.sin(angleX) / pi2) + noise.GetNoise(Math.cos(angleY) / pi2, Math.sin(angleY) / pi2)) * 0.5 * 0.5 + 0.5;
 }
 
 // gets the color at the position based on the height and moisture

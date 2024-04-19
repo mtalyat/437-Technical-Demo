@@ -112,11 +112,6 @@ polygonModeDropdown.addEventListener('change', function () {
     terrainUpdate();
 });
 
-colorFunctionDropdown.addEventListener('change', function () {
-    sessionData.getColorFunction = window[this.value];
-    terrainUpdate();
-});
-
 noiseTypeDropdown.addEventListener('change', function () {
     sessionData.noiseType = this.value;
     terrainUpdate();
@@ -126,6 +121,11 @@ noiseFunctionDropdown.addEventListener('change', function () {
     const strs = String(this.value).split('/')
     sessionData.getHeightFunction = window[strs[0]];
     sessionData.getMoistureFunction = window[strs[1]];
+    terrainUpdate();
+});
+
+colorFunctionDropdown.addEventListener('change', function () {
+    sessionData.getColorFunction = window[this.value];
     terrainUpdate();
 });
 

@@ -311,13 +311,22 @@ function getNoiseWrapY(noise, x, y) {
     return noise.GetNoise(Math.sin(angle) / pi2, Math.cos(angle) / pi2, x) * 0.5 + 0.5;
 }
 
+function getNoise4D(noise, x, y, z, w) {
+    // FastNoiseLite has no 4D noise function, so use 2 2D functions to simulate 4D
+    return (noise.GetNoise(x, y) + noise.GetNoise(z, w)) * 0.5;
+}
+
 // torus wrapping (both X and Y)
 function getNoiseWrap(noise, x, y) {
     const pi2 = Math.PI * 2;
     const angleX = pi2 * x;
     const angleY = pi2 * y;
-    // FastNoiseLite has no 4D noise function, so use 2 2D functions to simulate 4D
-    return (noise.GetNoise(Math.cos(angleX) / pi2, Math.sin(angleX) / pi2) + noise.GetNoise(Math.cos(angleY) / pi2, Math.sin(angleY) / pi2)) * 0.5 * 0.5 + 0.5;
+    return getNoise4D(noise, 
+        Math.cos(angleX) / pi2, 
+        Math.sin(angleX) / pi2, 
+        Math.cos(angleY) / pi2, 
+        Math.sin(angleY) / pi2) 
+        * 0.5 + 0.5;
 }
 
 // gets the color at the position based on the height and moisture

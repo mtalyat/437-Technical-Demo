@@ -381,8 +381,8 @@ function generateMap() {
 
     function createInitialCentroids(step) {
         let centroids = [];
-        for (let x = step / 2; x <= 1; x += step) {
-            for (let y = step / 2; y <= 1; y += step) {
+        for (let x = 0; x < 1; x += step) {
+            for (let y = 0; y < 1; y += step) {
                 centroids.push({
                     x: Math.min(Math.max(x + step / 2, 0), 1),  // Clamp values to [0, 1]
                     y: Math.min(Math.max(y + step / 2, 0), 1)   // Clamp values to [0, 1]
